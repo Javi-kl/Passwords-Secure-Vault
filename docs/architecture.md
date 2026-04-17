@@ -57,38 +57,35 @@
 
 	- ## Esqueleto
 	  ```
-	  project/
-	  ├── main.py
-	  ├── core/
-	  │   ├── config.py                
-	  │   └── security.py
-	  ├── domain/
-	  │   └── models/
-	  │       ├── user.py
-	  │       └── vault_entry.py
-	  ├── application/
-	  │   ├── services/
-	  │   │   ├── auth_service.py
-	  │   │   └── vault_service.py
-	  │   └── repositories/
-	  │       ├── user_repository.py
-	  │       └── vault_repository.py
-	  ├── infrastructure/
-	  │   ├── http/
-	  │   │   ├── routers/
-	  │   │   │   ├── auth_http.py
-	  │   │   │   └── vault_http.py
-	  │   │   ├── schemas/
-	  │   │   │   ├── auth_schema.py
-	  │   │   │   └── vault_schema.py
-	  │   │   └── dependencies/
-	  │   │       └── auth_deps.py
-	  │   └── persistence/
-	  │       ├── database.py
-	  │       └── repositories/
-	  │           ├── sqlalchemy_user_repository.py
-	  │           └── sqlalchemy_vault_repository.py
-	  └── tests/
-	  ```
-	-
+	PasswordsSecureVault/
+	├── app/
+	│   ├── main.py
+	│   ├── dependencies.py
+	│   ├── core/
+	│   │   ├── config.py
+	│   │   └── security.py
+	│   ├── db/
+	│   │   ├── database.py
+	│   │   └── models/
+	│   │       ├── user.py
+	│   │       └── vault_entry.py
+	│   ├── schemas/
+	│   │   ├── auth.py
+	│   │   └── vault.py
+	│   ├── routers/
+	│   │   ├── auth.py
+	│   │   └── vault.py
+	│   ├── services/
+	│   │   ├── auth_service.py
+	│   │   └── vault_service.py
+	│   └── repositories/
+	│       ├── user_repository.py
+	│       └── vault_repository.py
+	├── alembic/
+	├── tests/
+	├── docs/
+	├── docker-compose.yml
+	├── .env.example
+	├── .gitignore
+	└── README.md
 ---
