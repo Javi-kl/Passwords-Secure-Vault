@@ -30,10 +30,13 @@ Consulta .env.example para ver las variables necesarias.
 ### Base de datos
 **Dar permisos de ejecución al script de inicialización**
 `chmod +x scripts/init-db.sh`
+
 **Levantar PostgreSQL (crea vault_db y vault_test_db automáticamente)**
 `docker compose up -d`
+
 **Verificar que ambas BDs existen**
 `docker compose exec db psql -U vault_user -c "\l"`
+
 **Si ya tenías el contenedor levantado antes del script de init:**
 `docker compose down -v`    # borra volúmenes (cuidado: pierde datos)
 `docker compose up -d`       # recrea con init-db.sh
