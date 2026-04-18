@@ -42,3 +42,23 @@ def test_register_invalid_email(client):
 def test_register_empty_body(client):
     response = client.post("/auth/register", json={})
     assert response.status_code == 422
+
+
+def test_register_rate_limit_exceed(client):
+    count = 100
+    for _ in range(3):
+        email_user = str(count) + "@gmail.com"
+        response = client.post(
+            "/auth/register",
+            json={"email": email_user, "password": "12345678901234"},
+        )
+        count += 1
+        assert response.status_code == 201
+    # 4 debe dar error
+    response = client.post(
+        "/auth/register",
+        json={"email": "ana@gmail.com", "password": "12345678901234"},
+    )
+
+    assert response.status_code == 429
+    assert "Rate limit exceeded: 3 per 1 minute" in response.text
