@@ -1,18 +1,16 @@
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from fastapi import HTTPException, status
+from fastapi import HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.security import hash_password, verify_password
 from app.repositories.user_repository import UserRepository
-from app.schemas.auth_schema import Token, UserCreate, UserResponse
+from app.schemas.auth_schema import UserCreate, UserResponse
 
-ACCESS_TOKEN_EXPIRE_MINUTES = get_settings().ACCESS_TOKEN_EXPIRE_MINUTES
-SECRET_KEY = get_settings().SECRET_KEY
-ALGORITHM = get_settings().ALGORITHM
+settings = get_settings()
 
 
 class AuthService:
@@ -30,7 +28,7 @@ class AuthService:
         return UserResponse.model_validate(user)
 
     @staticmethod
-    def login(form: OAuth2PasswordRequestForm, db: Session) -> Token:
+    def login(form: OAuth2PasswordRequestForm, db: Session, response: Response):
         user = UserRepository.find_by_email(form.username, db)
         if not user:
             raise HTTPException(
@@ -45,12 +43,30 @@ class AuthService:
                 detail="Credenciales no válidas",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        access_token = {
+
+        payload = {
             "sub": user.email,
             "exp": datetime.now(timezone.utc)
             + timedelta(minutes=get_settings().ACCESS_TOKEN_EXPIRE_MINUTES),
         }
-        return Token(
-            access_token=jwt.encode(access_token, SECRET_KEY, algorithm=ALGORITHM),
-            token_type="bearer",
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+        response.set_cookie(
+            key="access_token",
+            value=token,
+            httponly=True,
+            max_age=600,
+            secure=settings.COOKIE_SECURE,
+            samesite="lax",
+            path="/",
         )
+
+        return {"message": "login correcto"}
+
+    @staticmethod
+    def logout(response: Response):
+        response.delete_cookie(
+            key="access_token",
+            path="/",
+        )
+        return {"message": "sesión cerrada"}
