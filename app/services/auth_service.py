@@ -47,7 +47,7 @@ class AuthService:
         payload = {
             "sub": user.email,
             "exp": datetime.now(timezone.utc)
-            + timedelta(minutes=get_settings().ACCESS_TOKEN_EXPIRE_MINUTES),
+            + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         }
         token = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 

@@ -54,10 +54,11 @@ Los tests usan vault_test_db (definida en TEST_DATABASE_URL del .env), separada 
 ### Autenticación
 - [X] RF1 — Registro con email y contraseña maestra
 - [X] RF2 — Login con JWT (15 min)
-- [ ] RF3 — Logout
-- [ ] RNF1 — Hash Argon2id (nunca texto plano)
-- [ ] RNF4 — Mensajes de error genéricos en login
+- [X] RF3 — Logout
+- [X] RNF1 — Hash Argon2id (nunca texto plano)
+- [X] RNF4 — Mensajes de error genéricos en login
 - [ ] RNF6 — Throttling tras intentos fallidos + logging
+- [X] RNF9 - Ratelimit en registro y login
 ### Bóveda
 - [ ] RF4 — Crear entrada cifrada
 - [ ] RF5 — Listar entradas propias

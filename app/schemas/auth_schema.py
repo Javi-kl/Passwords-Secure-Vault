@@ -18,3 +18,7 @@ class UserResponse(BaseModel):
     email: str
 
     model_config = {"from_attributes": True}
+
+
+class MessageResponse(BaseModel):
+    message: str
