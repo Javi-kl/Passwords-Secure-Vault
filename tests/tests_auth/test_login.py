@@ -56,7 +56,7 @@ def test_login_rate_limit_exceed(client):
         json={"email": "ana@gmail.com", "password": "12345678901234"},
     )
     # 3 intentos de login , deben ser OK
-    for _ in range(3):
+    for _ in range(5):
         response = client.post(
             "/auth/login",
             data={"username": "ana@gmail.com", "password": "12345678901234"},
@@ -68,4 +68,28 @@ def test_login_rate_limit_exceed(client):
         data={"username": "ana@gmail.com", "password": "12345678901234"},
     )
     assert response.status_code == 429
-    assert "Rate limit exceeded: 3 per 1 minute" in response.text
+    assert "Rate limit exceeded: 5 per 1 minute" in response.text
+
+
+def test_login_generic_error_message(client):
+    """el sistema no debe revelar si falló por email inexistente o contraseña incorrecta."""
+    client.post(
+        "/auth/register", json={"email": "ana@gmail.com", "password": "12345678901234"}
+    )
+    # Email que no existe
+    response_wrong_email = client.post(
+        "/auth/login",
+        data={"username": "noexiste@gmail.com", "password": "12345678901234"},
+    )
+    # Contraseña incorrecta
+    response_wrong_password = client.post(
+        "/auth/login",
+        data={"username": "ana@gmail.com", "password": "incorrecta1234567"},
+    )
+    assert response_wrong_email.status_code == 401
+    assert response_wrong_password.status_code == 401
+    # Ambos errores deben tener exactamente el mismo mensaje
+    assert (
+        response_wrong_email.json()["detail"]
+        == response_wrong_password.json()["detail"]
+    )

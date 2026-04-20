@@ -13,6 +13,7 @@ TestSessionLocal = sessionmaker(bind=test_engine)
 
 
 def override_get_db():
+    """Reemplaza get_db con sesión de BD de test."""
     db = TestSessionLocal()
     try:
         yield db
@@ -24,6 +25,7 @@ def override_get_db():
 
 @pytest.fixture(autouse=True)
 def reset_db():
+    """Crea y elimina tablas antes y después de cada test."""
     Base.metadata.create_all(bind=test_engine)
     yield
     Base.metadata.drop_all(bind=test_engine)
@@ -31,6 +33,7 @@ def reset_db():
 
 @pytest.fixture
 def client():
+    """Cliente HTTP de test con dependencias sobrecargadas."""
     app.dependency_overrides[get_db] = override_get_db
     yield TestClient(app)
     app.dependency_overrides.clear()
@@ -38,13 +41,28 @@ def client():
 
 @pytest.fixture(autouse=True)
 def reset_limiter():
+    """Resetea el rate limiter antes de cada test."""
     app.state.limiter.reset()
     yield
+
 
 @pytest.fixture
 def authed_client(client):
     """Cliente con cookie de autenticación seteada."""
-    client.post("/auth/register", json={"email": "test@test.com", "password": "12345678901234"})
-    client.post("/auth/login", data={"username": "test@test.com", "password": "12345678901234"})
+    client.post(
+        "/auth/register", json={"email": "test@test.com", "password": "12345678901234"}
+    )
+    client.post(
+        "/auth/login", data={"username": "test@test.com", "password": "12345678901234"}
+    )
     return client
-    
+
+
+@pytest.fixture
+def db():
+    """Sesión de BD para manipulación directa en tests."""
+    db = TestSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

@@ -2,10 +2,13 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.core.logging_config import setup_logging
 from app.core.rate_limit import setup_rate_limiting
 from app.db.database import Base, engine
 from app.db.models.user_model import User  # noqa: F401
 from app.routers.auth_router import router as auth_router
+
+setup_logging()
 
 
 @asynccontextmanager
