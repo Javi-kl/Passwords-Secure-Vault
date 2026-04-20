@@ -56,7 +56,7 @@ def test_login_rate_limit_exceed(client):
         json={"email": "ana@gmail.com", "password": "12345678901234"},
     )
     # 3 intentos de login , deben ser OK
-    for _ in range(3):
+    for _ in range(5):
         response = client.post(
             "/auth/login",
             data={"username": "ana@gmail.com", "password": "12345678901234"},
@@ -68,7 +68,7 @@ def test_login_rate_limit_exceed(client):
         data={"username": "ana@gmail.com", "password": "12345678901234"},
     )
     assert response.status_code == 429
-    assert "Rate limit exceeded: 3 per 1 minute" in response.text
+    assert "Rate limit exceeded: 5 per 1 minute" in response.text
 
 
 def test_login_generic_error_message(client):

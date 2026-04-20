@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta, timezone
 
 import jwt
@@ -10,6 +11,7 @@ from app.core.security import hash_password, verify_password
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth_schema import UserCreate, UserResponse
 
+logger = logging.getLogger("auth_service")
 settings = get_settings()
 
 
@@ -31,6 +33,7 @@ class AuthService:
     def login(form: OAuth2PasswordRequestForm, db: Session, response: Response):
         user = UserRepository.find_by_email(form.username, db)
         if not user:
+            logger.warning("Login fallido para: %s", form.username)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Credenciales no válidas",
@@ -38,6 +41,7 @@ class AuthService:
             )
 
         if not verify_password(form.password, user.password_hash):
+            logger.warning("Login fallido para: %s", form.username)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Credenciales no válidas",
@@ -60,7 +64,7 @@ class AuthService:
             samesite="lax",
             path="/",
         )
-
+        logger.info("Login exitoso para: %s", user.email)
         return {"message": "login correcto"}
 
     @staticmethod

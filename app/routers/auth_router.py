@@ -23,7 +23,7 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
 
 
 @router.post("/login", response_model=MessageResponse, status_code=status.HTTP_200_OK)
-@limiter.limit("3/minute")
+@limiter.limit("5/minute")
 def login(
     response: Response,
     request: Request,
