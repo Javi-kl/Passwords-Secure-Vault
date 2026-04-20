@@ -1,6 +1,6 @@
 import jwt
 from fastapi import Depends, HTTPException, Request, status
-from jose.exceptions import JWTError
+from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
@@ -8,8 +8,7 @@ from app.db.database import get_db
 from app.db.models.user_model import User
 from app.repositories.user_repository import UserRepository
 
-SECRET_KEY = get_settings().SECRET_KEY
-ALGORITHM = get_settings().ALGORITHM
+settings = get_settings()
 
 
 def auth_user(request: Request, db: Session = Depends(get_db)) -> User:
@@ -22,11 +21,13 @@ def auth_user(request: Request, db: Session = Depends(get_db)) -> User:
     if not token:
         raise exception
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         email = payload.get("sub")
         if email is None:
             raise exception
-    except JWTError:
+    except InvalidTokenError:
         raise exception
 
     user = UserRepository.find_by_email(email, db)

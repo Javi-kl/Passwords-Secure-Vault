@@ -3,9 +3,10 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.config import get_settings
 
+settings = get_settings()
 engine = create_engine(
-    get_settings().DATABASE_URL,
-    echo=False,  # True para ver las queries en terminal
+    settings.DATABASE_URL,
+    echo=False,
 )
 
 SessionLocal = sessionmaker(bind=engine, class_=Session, expire_on_commit=False)

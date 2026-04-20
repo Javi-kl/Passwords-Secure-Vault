@@ -6,7 +6,7 @@ from app.core.rate_limit import limiter
 from app.db.database import get_db
 from app.db.models.user_model import User
 from app.dependencies.auth_deps import auth_user
-from app.schemas.auth_schema import UserCreate, UserResponse
+from app.schemas.auth_schema import MessageResponse, UserCreate, UserResponse
 from app.services.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -22,7 +22,7 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
     return AuthService.register(user_data, db)
 
 
-@router.post("/login", status_code=status.HTTP_200_OK)
+@router.post("/login", response_model=MessageResponse, status_code=status.HTTP_200_OK)
 @limiter.limit("3/minute")
 def login(
     response: Response,
@@ -33,7 +33,9 @@ def login(
     return AuthService.login(form, db, response)
 
 
-@router.post("/logout", status_code=status.HTTP_200_OK)
+@router.post(
+    "/logout", status_code=status.HTTP_200_OK, dependencies=[Depends(auth_user)]
+)
 def logout(response: Response):
     return AuthService.logout(response)
 

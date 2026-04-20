@@ -40,3 +40,11 @@ def client():
 def reset_limiter():
     app.state.limiter.reset()
     yield
+
+@pytest.fixture
+def authed_client(client):
+    """Cliente con cookie de autenticación seteada."""
+    client.post("/auth/register", json={"email": "test@test.com", "password": "12345678901234"})
+    client.post("/auth/login", data={"username": "test@test.com", "password": "12345678901234"})
+    return client
+    
