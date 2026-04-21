@@ -108,11 +108,22 @@
 		    
 
 	- ## RNF6. Protección básica ante ataques
-		- **Historia:** Como propietario del sistema, quiero limitar intentos de login para reducir fuerza bruta.
+		- **Historia:** Como propietario del sistema, quiero limitar las peticiones de autenticación y registro.
+		registrar los intentos fallidos para mitigar ataques de fuerza bruta.
 		    
-		  **Criterios de aceptación:**  
-		- El login aplica throttling, retraso o bloqueo temporal tras varios fallos.
-		- Los intentos fallidos quedan registrados en logs.
+		  **Criterios de aceptación:**
+		- El endpoint POST /auth/login aplica rate limiting de 5 peticiones
+			por minuto por IP.
+		- El endpoint POST /auth/register aplica rate limiting de 3 peticiones
+			por minuto por IP.
+		- Cuando se supera el límite, se devuelve HTTP 429 con mensaje
+			descriptivo.
+		- Cada intento de login fallido se registra en logs con nivel WARNING,
+			incluyendo el email intentado, sin distinguir si falló por email
+			inexistente o contraseña incorrecta (consistente con RNF4).
+		- Cada intento de login exitoso se registra en logs con nivel INFO.
+		- Cada superación de rate limit se registra en logs con nivel WARNING,
+			incluyendo la IP y el path.
 		    
 
 	- ## RNF7. Transporte seguro

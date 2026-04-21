@@ -8,10 +8,10 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     TEST_DATABASE_URL: str
     SECRET_KEY: str
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 10
     VAULT_ENCRYPTION_KEY: str
-    COOKIE_SECURE: bool = False
+    COOKIE_SECURE: bool = True
     model_config = ConfigDict(env_file=".env", extra="forbid")
 
 

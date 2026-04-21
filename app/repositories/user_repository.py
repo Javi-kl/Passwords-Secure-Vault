@@ -14,3 +14,7 @@ class UserRepository:
         db.add(user)
         db.flush()
         return user
+
+    @staticmethod
+    def find_by_id(user_id: str, db: Session) -> User | None:
+        return db.query(User).filter(User.id == user_id).first()

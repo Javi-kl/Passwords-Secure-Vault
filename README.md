@@ -1,6 +1,6 @@
 # Passwords-Secure-Vault
 Backend de un gestor de contraseñas con autenticación JWT y cifrado de bóveda.
-> Proyecto  enfocado en seguridad (cifrado, autenticación, control de acceso) y buenas prácticas con FastAPI. No incluye recuperación de contraseña maestra por decisión de diseño.
+> Proyecto  enfocado en seguridad (cifrado, autenticación, control de acceso) y buenas prácticas con FastAPI. No incluye recuperación de contraseña maestra ni refresh tokens por decisión de diseño.
 La arquitectura, modelo de datos, esqueleto y requisitos completos están en [`/docs`](./docs).
 ***
 ## Stack Tecnológico
@@ -53,12 +53,11 @@ Los tests usan vault_test_db (definida en TEST_DATABASE_URL del .env), separada 
 ## Roadmap
 ### Autenticación
 - [X] RF1 — Registro con email y contraseña maestra
-- [X] RF2 — Login con JWT (15 min)
+- [X] RF2 — Login con JWT (10 min) - caducidad forzada de sesión.
 - [X] RF3 — Logout
 - [X] RNF1 — Hash Argon2id (nunca texto plano)
 - [X] RNF4 — Mensajes de error genéricos en login
-- [ ] RNF6 — Throttling tras intentos fallidos + logging
-- [X] RNF9 - Ratelimit en registro y login
+- [X] RNF6 - Rate limit en registro y login con logs de intentos fallidos, exitos y bloqueos.
 ### Bóveda
 - [ ] RF4 — Crear entrada cifrada
 - [ ] RF5 — Listar entradas propias
