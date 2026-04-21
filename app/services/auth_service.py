@@ -49,7 +49,7 @@ class AuthService:
             )
 
         payload = {
-            "sub": user.email,
+            "sub": str(user.id),
             "exp": datetime.now(timezone.utc)
             + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         }
