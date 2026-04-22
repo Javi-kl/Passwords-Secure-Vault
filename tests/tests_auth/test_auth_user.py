@@ -31,8 +31,8 @@ def test_me_with_expired_token(client, db):
     from app.core.config import get_settings
     from app.core.security import hash_password
     from app.repositories.user_repository import UserRepository
-
-    UserRepository.create("test@test.com", hash_password("12345678901234"), db)
+    vault_salt = b"test_salt_1234567890"
+    UserRepository.create("test@test.com", hash_password("12345678901234"),vault_salt, db)
     db.commit()
     
     payload = {

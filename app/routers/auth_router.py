@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Form, Request, Response, status
+from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -36,8 +36,8 @@ def login(
 @router.post(
     "/logout", status_code=status.HTTP_200_OK, dependencies=[Depends(auth_user)]
 )
-def logout(response: Response):
-    return AuthService.logout(response)
+def logout(response: Response,request:Request):
+    return AuthService.logout(response,request)
 
 
 @router.patch(
