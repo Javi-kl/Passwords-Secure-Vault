@@ -10,8 +10,8 @@ class UserRepository:
         return db.query(User).filter(User.email == email).first()
 
     @staticmethod
-    def create(email: str, password_hash: str, db: Session) -> User:
-        user = User(email=email, password_hash=password_hash)
+    def create(email: str, password_hash: str, vault_salt: bytes, db: Session) -> User:
+        user = User(email=email, password_hash=password_hash, vault_salt=vault_salt)
         db.add(user)
         db.flush()
         return user
@@ -19,14 +19,11 @@ class UserRepository:
     @staticmethod
     def update_password(user_id: int, password_hash: str, db: Session):
         update_user_password = (
-            update(User)
-            .where(User.id == user_id)
-            .values(password_hash=password_hash)
+            update(User).where(User.id == user_id).values(password_hash=password_hash)
         )
         db.execute(update_user_password)
         db.flush()
         return True
-
 
     @staticmethod
     def find_by_id(user_id: str, db: Session) -> User | None:

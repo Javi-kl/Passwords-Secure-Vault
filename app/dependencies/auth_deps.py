@@ -36,3 +36,5 @@ def auth_user(request: Request, db: Session = Depends(get_db)) -> User:
         raise exception
 
     return user
+
+

@@ -1,13 +1,17 @@
 import logging
+import secrets
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from fastapi import HTTPException, Response, status
+from fastapi import HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.security import hash_password, verify_password
+from app.core.vault_crypto import create_fernet, generate_vault_salt
+from app.core.vault_session_cache import remove_vault_session, store_vault_session
+from app.db.models.user_model import User
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth_schema import ChangePasswordRequest, UserCreate, UserResponse
 
@@ -24,9 +28,9 @@ class AuthService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Este email ya está registrado",
             )
-
+        vault_salt = generate_vault_salt()
         password_hash = hash_password(user_data.password)
-        user = UserRepository.create(user_data.email, password_hash, db)
+        user = UserRepository.create(user_data.email, password_hash, vault_salt, db)
         return UserResponse.model_validate(user)
 
     @staticmethod
@@ -47,9 +51,13 @@ class AuthService:
                 detail="Credenciales no válidas",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+        fernet = create_fernet(form.password, user.vault_salt)
+        vault_session_id = secrets.token_urlsafe(32)
+        store_vault_session(vault_session_id, fernet)
 
         payload = {
             "sub": str(user.id),
+            "vault_session": vault_session_id,
             "exp": datetime.now(timezone.utc)
             + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         }
@@ -69,7 +77,7 @@ class AuthService:
 
     @staticmethod
     def change_password_service(
-        user, password_data: ChangePasswordRequest, db: Session
+        user: User, password_data: ChangePasswordRequest, db: Session
     ):
         if not verify_password(password_data.current_password, user.password_hash):
             raise HTTPException(
@@ -89,9 +97,18 @@ class AuthService:
         return {"message": "Contraseña actualizada correctamente"}
 
     @staticmethod
-    def logout(response: Response):
+    def logout(response: Response, request: Request):
+        token = request.cookies.get("access_token")
+        if token:
+            payload = jwt.decode(
+                token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            )
+            vault_session_id = payload.get("vault_session")
+            if vault_session_id:
+                remove_vault_session(vault_session_id)
         response.delete_cookie(
             key="access_token",
             path="/",
         )
+
         return {"message": "sesión cerrada"}

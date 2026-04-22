@@ -10,7 +10,6 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 10
-    VAULT_ENCRYPTION_KEY: str
     COOKIE_SECURE: bool = True
     model_config = ConfigDict(env_file=".env", extra="forbid")
 

@@ -58,8 +58,9 @@ Los tests usan vault_test_db (definida en TEST_DATABASE_URL del .env), separada 
 - [X] RNF1 — Hash Argon2id (nunca texto plano)
 - [X] RNF4 — Mensajes de error genéricos en login
 - [X] RNF6 - Rate limit en registro y login con logs de intentos fallidos, exitos y bloqueos.
+- [X] RF Extra - feat: modificar contraseña. 
 ### Bóveda
-- [ ] RF4 — Crear entrada cifrada
+- [X] RF4 — Crear entrada cifrada
 - [ ] RF5 — Listar entradas propias
 - [ ] RF6 — Editar entrada propia
 - [ ] RF7 — Eliminar entrada propia
