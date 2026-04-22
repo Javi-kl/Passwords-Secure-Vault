@@ -21,7 +21,7 @@ def get_db():
     try:
         yield db
         db.commit()
-    except Exception:
+    except Exception:  # Debería ser SQLAlchemyError mejor?
         db.rollback()
         raise
     finally:

@@ -1,3 +1,4 @@
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
 from app.db.models.user_model import User
@@ -14,6 +15,18 @@ class UserRepository:
         db.add(user)
         db.flush()
         return user
+
+    @staticmethod
+    def update_password(user_id: int, password_hash: str, db: Session):
+        update_user_password = (
+            update(User)
+            .where(User.id == user_id)
+            .values(password_hash=password_hash)
+        )
+        db.execute(update_user_password)
+        db.flush()
+        return True
+
 
     @staticmethod
     def find_by_id(user_id: str, db: Session) -> User | None:
