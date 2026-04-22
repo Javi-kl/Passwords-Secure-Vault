@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.core.security import hash_password, verify_password
 from app.repositories.user_repository import UserRepository
-from app.schemas.auth_schema import UserCreate, UserResponse
+from app.schemas.auth_schema import ChangePasswordRequest, UserCreate, UserResponse
 
 logger = logging.getLogger("auth_service")
 settings = get_settings()
@@ -66,6 +66,27 @@ class AuthService:
         )
         logger.info("Login exitoso para: %s", user.email)
         return {"message": "login correcto"}
+
+    @staticmethod
+    def change_password_service(
+        user, password_data: ChangePasswordRequest, db: Session
+    ):
+        if not verify_password(password_data.current_password, user.password_hash):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Credenciales no válidas",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        if password_data.current_password == password_data.new_password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="La nueva contraseña no puede ser igual a la actual.",
+            )
+
+        password_hash = hash_password(password_data.new_password)
+        UserRepository.update_password(user.id, password_hash, db)
+        return {"message": "Contraseña actualizada correctamente"}
 
     @staticmethod
     def logout(response: Response):
