@@ -20,7 +20,7 @@ def test_me_without_cookie(client):
 
 def test_me_with_invalid_token(client):
     """token manipulado no pasa la verificación."""
-    fake_token = jwt.encode({"sub": "test@test.com"}, "clave_falsa", algorithm="HS256")
+    fake_token = jwt.encode({"sub": "1"}, "clave_falsa", algorithm="HS256")
     client.cookies.set("access_token", fake_token)
     response = client.get("/auth/me")
     assert response.status_code == 401
@@ -31,12 +31,15 @@ def test_me_with_expired_token(client, db):
     from app.core.config import get_settings
     from app.core.security import hash_password
     from app.repositories.user_repository import UserRepository
+
     vault_salt = b"test_salt_1234567890"
-    UserRepository.create("test@test.com", hash_password("12345678901234"),vault_salt, db)
+    UserRepository.create(
+        "test@test.com", hash_password("12345678901234"), vault_salt, db
+    )
     db.commit()
-    
+
     payload = {
-        "sub": "test@test.com",
+        "sub": "1",
         "exp": datetime.now(timezone.utc) - timedelta(minutes=1),
     }
     settings = get_settings()

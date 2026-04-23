@@ -26,5 +26,5 @@ class UserRepository:
         return True
 
     @staticmethod
-    def find_by_id(user_id: str, db: Session) -> User | None:
+    def find_by_id(user_id: int, db: Session) -> User | None:
         return db.query(User).filter(User.id == user_id).first()

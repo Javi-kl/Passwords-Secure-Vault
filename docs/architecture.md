@@ -37,7 +37,8 @@
 		- Argon2id para hash de contraseña maestra
 		- Arquitectura en capas simple.
 		- SQLAlchemy 2.0 como ORM
-
+		- Consumible desde cualquier cliente HTTP
+		
 	- ## Opcionales para producción
 		- alembic
 		
