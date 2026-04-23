@@ -66,3 +66,5 @@ def db():
         yield db
     finally:
         db.close()
+
+

@@ -16,3 +16,7 @@ class VaultRepository:
         db.add(entry)
         db.flush()
         return entry
+
+    @staticmethod
+    def find_by_user_id(user_id: int, db: Session):
+        return db.query(VaultEntry).filter(VaultEntry.user_id == user_id).all()

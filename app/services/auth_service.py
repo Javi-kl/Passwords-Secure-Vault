@@ -15,6 +15,8 @@ from app.db.models.user_model import User
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth_schema import ChangePasswordRequest, UserCreate, UserResponse
 
+from .vault_service import VaultService
+
 logger = logging.getLogger("auth_service")
 settings = get_settings()
 
@@ -77,7 +79,10 @@ class AuthService:
 
     @staticmethod
     def change_password_service(
-        user: User, password_data: ChangePasswordRequest, db: Session
+        user: User,
+        password_data: ChangePasswordRequest,
+        db: Session,
+        vault_session_id: str | None,
     ):
         if not verify_password(password_data.current_password, user.password_hash):
             raise HTTPException(
@@ -91,21 +96,25 @@ class AuthService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="La nueva contraseña no puede ser igual a la actual.",
             )
+        old_fernet = create_fernet(password_data.current_password, user.vault_salt)
+        new_fernet = create_fernet(password_data.new_password, user.vault_salt)
 
-        password_hash = hash_password(password_data.new_password)
-        UserRepository.update_password(user.id, password_hash, db)
+        VaultService.re_encrypt_entries(old_fernet, new_fernet, user.id, db)
+
+        UserRepository.update_password(
+            user.id, hash_password(password_data.new_password), db
+        )
+
+        if vault_session_id:
+            store_vault_session(vault_session_id, new_fernet)
+
         return {"message": "Contraseña actualizada correctamente"}
 
     @staticmethod
-    def logout(response: Response, request: Request):
-        token = request.cookies.get("access_token")
-        if token:
-            payload = jwt.decode(
-                token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
-            )
-            vault_session_id = payload.get("vault_session")
-            if vault_session_id:
-                remove_vault_session(vault_session_id)
+    def logout(response: Response, request: Request, vault_session_id: str | None):
+
+        if vault_session_id:
+            remove_vault_session(vault_session_id)
         response.delete_cookie(
             key="access_token",
             path="/",
