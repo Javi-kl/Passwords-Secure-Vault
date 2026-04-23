@@ -1,7 +1,7 @@
 from cryptography.fernet import Fernet
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-
+from typing import Annotated
 from app.db.database import get_db
 from app.db.models.user_model import User
 from app.dependencies.vault_deps import get_vault_session
@@ -18,8 +18,8 @@ router = APIRouter(prefix="/vault", tags=["vault"])
 )
 def create(
     entry_data: EntryCreate,
-    user: User= Depends(auth_user),
-    fernet: Fernet = Depends(get_vault_session),
-    db: Session = Depends(get_db),
+    user: Annotated[User, Depends(auth_user)],
+    fernet: Annotated[Fernet, Depends(get_vault_session)],
+    db: Annotated[Session, Depends(get_db)],
 ):
     return VaultService.create_entry(entry_data, user, fernet, db)

@@ -26,8 +26,7 @@ def auth_user(request: Request, db: Session = Depends(get_db)) -> User:
         )
         user_id = int(payload.get("sub"))
         request.state.vault_session_id = payload.get("vault_session")
-        if user_id is None:
-            raise exception
+
     except (InvalidTokenError, ValueError):
         raise exception
 
