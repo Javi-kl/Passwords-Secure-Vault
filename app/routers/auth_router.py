@@ -6,7 +6,12 @@ from app.core.rate_limit import limiter
 from app.db.database import get_db
 from app.db.models.user_model import User
 from app.dependencies.auth_deps import auth_user
-from app.schemas.auth_schema import MessageResponse, UserCreate, UserResponse,ChangePasswordRequest
+from app.schemas.auth_schema import (
+    ChangePasswordRequest,
+    MessageResponse,
+    UserCreate,
+    UserResponse,
+)
 from app.services.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -36,8 +41,9 @@ def login(
 @router.post(
     "/logout", status_code=status.HTTP_200_OK, dependencies=[Depends(auth_user)]
 )
-def logout(response: Response,request:Request):
-    return AuthService.logout(response,request)
+def logout(response: Response, request: Request):
+    vault_session_id = getattr(request.state, "vault_session_id", None)
+    return AuthService.logout(response, request, vault_session_id)
 
 
 @router.patch(
@@ -52,9 +58,9 @@ def change_password(
     user: User = Depends(auth_user),
     db: Session = Depends(get_db),
 ):
-
+    vault_session_id = getattr(request.state, "vault_session_id", None)
     return AuthService.change_password_service(
-        user, password_data, db
+        user, password_data, db, vault_session_id
     )
 
 

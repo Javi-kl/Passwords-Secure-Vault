@@ -7,7 +7,7 @@ from app.db.database import Base
 
 
 class VaultEntry(Base):
-    __tablename__ = "passwords"
+    __tablename__ = "vault_entries"
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     description: Mapped[str] = mapped_column(String(500), nullable=False)
