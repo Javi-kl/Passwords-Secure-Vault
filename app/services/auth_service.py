@@ -69,7 +69,7 @@ class AuthService:
             key="access_token",
             value=token,
             httponly=True,
-            max_age=600,
+            max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
             secure=settings.COOKIE_SECURE,
             samesite="lax",
             path="/",

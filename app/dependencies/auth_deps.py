@@ -24,11 +24,11 @@ def auth_user(request: Request, db: Session = Depends(get_db)) -> User:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        user_id = payload.get("sub")
+        user_id = int(payload.get("sub"))
         request.state.vault_session_id = payload.get("vault_session")
         if user_id is None:
             raise exception
-    except InvalidTokenError:
+    except (InvalidTokenError, ValueError):
         raise exception
 
     user = UserRepository.find_by_id(user_id, db)

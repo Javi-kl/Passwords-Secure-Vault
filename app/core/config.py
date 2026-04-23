@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     TEST_DATABASE_URL: str
     SECRET_KEY: str
     ALGORITHM: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 10
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     COOKIE_SECURE: bool = True
     model_config = ConfigDict(env_file=".env", extra="forbid")
 

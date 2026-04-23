@@ -1,13 +1,12 @@
 from cryptography.fernet import Fernet
 from fastapi import Depends, HTTPException, Request, status
 
-from app.core.vault_session_cache import get_vault_session as get_cached_session
+from app.core.vault_session_cache import get_vault_cached_session
 from app.db.models.user_model import User
 
 from .auth_deps import auth_user
 
 
-#hay que corregir estos nombre confusos get_vault_session
 def get_vault_session(request: Request, user: User = Depends(auth_user)) -> Fernet:
     vault_session_id = getattr(request.state, "vault_session_id", None)
 
@@ -16,7 +15,7 @@ def get_vault_session(request: Request, user: User = Depends(auth_user)) -> Fern
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Vault session not found, please re-login",
         )
-    fernet = get_cached_session(vault_session_id)
+    fernet = get_vault_cached_session(vault_session_id)
 
     if not fernet:
         raise HTTPException(
