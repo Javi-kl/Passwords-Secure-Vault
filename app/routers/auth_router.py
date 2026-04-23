@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-
+from typing import Annotated
 from app.core.rate_limit import limiter
 from app.db.database import get_db
 from app.db.models.user_model import User
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
     status_code=status.HTTP_201_CREATED,
 )
 @limiter.limit("3/minute")
-def register(request: Request, user_data: UserCreate, db: Session = Depends(get_db)):
+def register(request: Request, user_data: UserCreate, db: Annotated[Session, Depends(get_db)]):
     return AuthService.register(user_data, db)
 
 
@@ -32,8 +32,8 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
 def login(
     response: Response,
     request: Request,
-    form: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db),
+    form: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db: Annotated[Session, Depends(get_db)],
 ):
     return AuthService.login(form, db, response)
 
@@ -55,8 +55,8 @@ def logout(response: Response, request: Request):
 def change_password(
     request: Request,
     password_data: ChangePasswordRequest,
-    user: User = Depends(auth_user),
-    db: Session = Depends(get_db),
+    user: Annotated[User, Depends(auth_user)],
+    db: Annotated[Session, Depends(get_db)],
 ):
     vault_session_id = getattr(request.state, "vault_session_id", None)
     return AuthService.change_password_service(
@@ -65,5 +65,5 @@ def change_password(
 
 
 @router.get("/me", response_model=UserResponse)
-async def me(user: User = Depends(auth_user)):
+async def me(user:Annotated[User, Depends(auth_user)]):
     return UserResponse.model_validate(user)

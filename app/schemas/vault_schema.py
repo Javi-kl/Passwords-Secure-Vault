@@ -4,7 +4,7 @@ from pydantic import BaseModel, field_validator
 class EntryCreate(BaseModel):
     description: str
     password: str
-    model_config = {"from_attributes": True} 
+    
     @field_validator("password")
     @classmethod
     def validate_password(cls, password: str) -> str:
