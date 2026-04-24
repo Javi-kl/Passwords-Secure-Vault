@@ -10,13 +10,13 @@ def get_vault_session(request: Request) -> Fernet:
     if not vault_session_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Sesion de bóveda no encontrada, vuelve a iniciar sesion.",
+            detail="Sesion de bóveda no encontrada.",
         )
     fernet = get_vault_cached_session(vault_session_id)
 
     if not fernet:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Sesion de bóveda expirada, vuelve a iniciar sesion.",
+            detail="Sesion de bóveda expirada\.",
         )
     return fernet
