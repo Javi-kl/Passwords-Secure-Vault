@@ -38,14 +38,22 @@ class VaultService:
                     )
                 )
             return result
-        
+
         except InvalidToken:
             logger.error("InvalidToken al recuperar entradas del usuario %s", user.id)
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Error al recuperar la bóveda.",
             )
-        
+
+    @staticmethod
+    def update_entry():
+        pass
+
+    @staticmethod
+    def delete_entry():
+        pass
+
     @staticmethod
     def re_encrypt_entries(
         old_fernet: Fernet, new_fernet: Fernet, user_id: int, db: Session
