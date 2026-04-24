@@ -8,7 +8,7 @@ from app.db.database import get_db
 from app.db.models.user_model import User
 from app.dependencies.auth_deps import auth_user
 from app.dependencies.vault_deps import get_vault_session
-from app.schemas.vault_schema import EntryCreate
+from app.schemas.vault_schema import EntryCreate, EntryRead
 from app.services.vault_service import VaultService
 
 router = APIRouter(prefix="/vault", tags=["vault"])
@@ -27,9 +27,7 @@ def create(
     return VaultService.create_entry(entry_data, user, fernet, db)
 
 
-@router.get(
-    "/entries", status_code=status.HTTP_200_OK, response_model=list[EntryCreate]
-)
+@router.get("/entries", status_code=status.HTTP_200_OK, response_model=list[EntryRead])
 def get_entries(
     user: Annotated[User, Depends(auth_user)],
     fernet: Annotated[Fernet, Depends(get_vault_session)],

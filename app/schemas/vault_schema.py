@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_serializer, field_validator
 
 
 class EntryCreate(BaseModel):
@@ -21,4 +21,11 @@ class EntryRead(BaseModel):
     password: str
     created_at: datetime
     updated_at: datetime | None = None
+
+    @field_serializer("created_at", "updated_at")
+    def serialize_datetime(self, dt: datetime, _info):
+        if dt is None:
+            return None
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+
     model_config = {"from_attributes": True}

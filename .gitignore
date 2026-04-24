@@ -70,4 +70,4 @@ debug.log
 
 #cache
 .vault_cache/
-./tmp_vault_sessions/
+tmp_vault_sessions/

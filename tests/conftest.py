@@ -68,3 +68,15 @@ def db():
         db.close()
 
 
+@pytest.fixture
+def second_authed_client():
+    """Crear segundo usuario autenticado para pruebas con multiusuario."""
+    app.dependency_overrides[get_db] = override_get_db
+    client = TestClient(app)
+    client.post(
+        "/auth/register", json={"email": "other@test.com", "password": "12345678901234"}
+    )
+    client.post(
+        "/auth/login", data={"username": "other@test.com", "password": "12345678901234"}
+    )
+    return client
