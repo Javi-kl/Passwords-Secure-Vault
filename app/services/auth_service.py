@@ -69,7 +69,7 @@ class AuthService:
             key="access_token",
             value=token,
             httponly=True,
-            max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
+            max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
             secure=settings.COOKIE_SECURE,
             samesite="lax",
             path="/",
@@ -100,7 +100,6 @@ class AuthService:
         new_fernet = create_fernet(password_data.new_password, user.vault_salt)
 
         VaultService.re_encrypt_entries(old_fernet, new_fernet, user.id, db)
-
         UserRepository.update_password(
             user.id, hash_password(password_data.new_password), db
         )
