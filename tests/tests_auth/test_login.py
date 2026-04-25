@@ -55,7 +55,7 @@ def test_login_rate_limit_exceed(client):
         "/auth/register",
         json={"email": "ana@gmail.com", "password": "12345678901234"},
     )
-    # 3 intentos de login , deben ser OK
+    # 5 intentos de login , deben ser OK
     for _ in range(5):
         response = client.post(
             "/auth/login",

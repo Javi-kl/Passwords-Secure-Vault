@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     COOKIE_SECURE: bool = True
+    VAULT_CACHE_DIR: str
     model_config = ConfigDict(env_file=".env", extra="forbid")
 
 

@@ -24,7 +24,7 @@ def auth_user(request: Request, db: Session = Depends(get_db)) -> User:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        user_id = int(payload.get("sub"))
+        user_id = int(payload.get("sub", 0))
         request.state.vault_session_id = payload.get("vault_session")
 
     except (InvalidTokenError, ValueError):

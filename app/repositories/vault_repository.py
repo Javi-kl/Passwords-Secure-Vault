@@ -1,4 +1,4 @@
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.db.models.vault_model import VaultEntry
@@ -32,13 +32,15 @@ class VaultRepository:
         return True
 
     @staticmethod
-    def delete() -> bool:
+    def delete():
         pass
 
     @staticmethod
     def get_all_by_user_id(user_id: int, db: Session) -> list[VaultEntry]:
-        return db.query(VaultEntry).filter(VaultEntry.user_id == user_id).all()
+        return list(db.scalars(select(VaultEntry).where(VaultEntry.user_id == user_id)))
 
     @staticmethod
     def get_by_id(entry_id: int, db: Session) -> VaultEntry | None:
-        return db.query(VaultEntry).filter(VaultEntry.id == entry_id).first()
+        return db.execute(
+            select(VaultEntry).where(VaultEntry.id == entry_id)
+        ).scalar_one_or_none()

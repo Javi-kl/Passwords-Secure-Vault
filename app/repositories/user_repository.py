@@ -1,4 +1,4 @@
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.db.models.user_model import User
@@ -23,8 +23,8 @@ class UserRepository:
 
     @staticmethod
     def get_by_id(user_id: int, db: Session) -> User | None:
-        return db.query(User).filter(User.id == user_id).first()
+        return db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
 
     @staticmethod
     def get_by_email(email: str, db: Session) -> User | None:
-        return db.query(User).filter(User.email == email).first()
+        return db.execute(select(User).where(User.email == email)).scalar_one_or_none()
