@@ -24,7 +24,7 @@ settings = get_settings()
 class AuthService:
     @staticmethod
     def register(user_data: UserCreate, db: Session) -> UserResponse:
-        existing_user = UserRepository.find_by_email(user_data.email, db)
+        existing_user = UserRepository.get_by_email(user_data.email, db)
         if existing_user:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -37,7 +37,7 @@ class AuthService:
 
     @staticmethod
     def login(form: OAuth2PasswordRequestForm, db: Session, response: Response):
-        user = UserRepository.find_by_email(form.username, db)
+        user = UserRepository.get_by_email(form.username, db)
         if not user:
             logger.warning("Login fallido para: %s", form.username)
             raise HTTPException(
@@ -78,7 +78,7 @@ class AuthService:
         return {"message": "login correcto"}
 
     @staticmethod
-    def change_password_service(
+    def change_password(
         user: User,
         password_data: ChangePasswordRequest,
         db: Session,

@@ -16,14 +16,14 @@ class VaultService:
     @staticmethod
     def create_entry(entry_data: EntryCreate, user: User, fernet: Fernet, db: Session):
         encrypted_password = encrypt_entry(fernet, entry_data.password)
-        VaultRepository.create_entry(
+        VaultRepository.create(
             user.id, entry_data.description, encrypted_password, db
         )
         return {"message": "Entrada creada correctamente"}
 
     @staticmethod
     def get_entries(user: User, fernet: Fernet, db: Session):
-        entries = VaultRepository.find_by_user_id(user.id, db)
+        entries = VaultRepository.get_all_by_user_id(user.id, db)
         result = []
         try:
             for entry in entries:
@@ -47,18 +47,37 @@ class VaultService:
             )
 
     @staticmethod
-    def update_entry():
-        pass
+    def update_entry(
+        entry_id: int, entry_data: EntryCreate, user: User, fernet: Fernet, db: Session
+    ):
+
+        entry_for_update = VaultRepository.get_by_id(entry_id, db)
+        if not entry_for_update:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="La entrada no existe."
+            )
+
+        if entry_for_update.user_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="No tienes permiso para modificar esta entrada.",
+            )
+        encrypted_password = encrypt_entry(fernet, entry_data.password)
+
+        VaultRepository.update(
+            entry_for_update.id, entry_data.description, encrypted_password, db
+        )
+        return {"message": "Entrada actualizada correctamente"}
 
     @staticmethod
-    def delete_entry():
+    def delete_entry(entry_id, user, db):
         pass
 
     @staticmethod
     def re_encrypt_entries(
         old_fernet: Fernet, new_fernet: Fernet, user_id: int, db: Session
     ) -> None:
-        entries = VaultRepository.find_by_user_id(user_id, db)
+        entries = VaultRepository.get_all_by_user_id(user_id, db)
         try:
             for entry in entries:
                 plaintext = decrypt_entry(old_fernet, entry.encrypted_password)

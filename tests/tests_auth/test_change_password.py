@@ -31,7 +31,7 @@ def test_change_password_reencrypt_entries(authed_client, db):
     assert old_entry.encrypted_password != old_ciphertext
 
     # 5 ─ Verificar que se puede descifrar con la NUEVA contraseña
-    user = UserRepository.find_by_email("test@test.com", db)
+    user = UserRepository.get_by_email("test@test.com", db)
     new_fernet = create_fernet("newpassword123456", user.vault_salt)
     plaintext = decrypt_entry(new_fernet, old_entry.encrypted_password)
     assert plaintext == "secreto12345"
@@ -102,7 +102,7 @@ def test_change_password_unauthenticated(client):
 
 def test_change_password_valid(authed_client, db):
     """Datos válidos actualizan la contraseña y devuelven 200"""
-    old_hash = UserRepository.find_by_email("test@test.com", db).password_hash
+    old_hash = UserRepository.get_by_email("test@test.com", db).password_hash
     response = authed_client.patch(
         "/auth/password",
         json={
@@ -112,7 +112,7 @@ def test_change_password_valid(authed_client, db):
         },
     )
     assert response.status_code == 200
-    new_hash = UserRepository.find_by_email("test@test.com", db).password_hash
+    new_hash = UserRepository.get_by_email("test@test.com", db).password_hash
     assert old_hash != new_hash
 
 

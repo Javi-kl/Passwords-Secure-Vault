@@ -30,7 +30,7 @@ def auth_user(request: Request, db: Session = Depends(get_db)) -> User:
     except (InvalidTokenError, ValueError):
         raise exception
 
-    user = UserRepository.find_by_id(user_id, db)
+    user = UserRepository.get_by_id(user_id, db)
 
     if user is None:
         raise exception
