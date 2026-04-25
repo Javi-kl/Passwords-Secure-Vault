@@ -3,19 +3,19 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 import jwt
+from cryptography.fernet import InvalidToken
 from fastapi import HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.security import hash_password, verify_password
-from app.core.vault_crypto import create_fernet, generate_vault_salt
+from app.core.vault_crypto import create_fernet, generate_vault_salt, re_encrypt
 from app.core.vault_session_cache import remove_vault_session, store_vault_session
 from app.db.models.user_model import User
 from app.repositories.user_repository import UserRepository
+from app.repositories.vault_repository import VaultRepository
 from app.schemas.auth_schema import ChangePasswordRequest, UserCreate, UserResponse
-
-from .vault_service import VaultService
 
 logger = logging.getLogger("auth_service")
 settings = get_settings()
@@ -99,7 +99,22 @@ class AuthService:
         old_fernet = create_fernet(password_data.current_password, user.vault_salt)
         new_fernet = create_fernet(password_data.new_password, user.vault_salt)
 
-        VaultService.re_encrypt_entries(old_fernet, new_fernet, user.id, db)
+        entries = VaultRepository.get_all_by_user_id(user.id, db)
+
+        try:
+            for entry in entries:
+                entry.encrypted_password = re_encrypt(
+                    entry.encrypted_password, old_fernet, new_fernet
+                )
+        except InvalidToken:
+            logger.error(
+                "InvalidToken al re-encriptar entradas del usuario %s", user.id
+            )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error al actualizar la bóveda.",
+            )
+
         UserRepository.update_password(
             user.id, hash_password(password_data.new_password), db
         )
