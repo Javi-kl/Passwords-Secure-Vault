@@ -17,11 +17,12 @@ class Base(DeclarativeBase):
 
 
 def get_db():
+    '''"Toda petición es una sola operación: o llega todo a BD o nada."'''
     db: Session = SessionLocal()
     try:
         yield db
         db.commit()
-    except Exception:  # Debería ser SQLAlchemyError mejor?
+    except Exception:
         db.rollback()
         raise
     finally:

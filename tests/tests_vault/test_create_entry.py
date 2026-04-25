@@ -11,9 +11,9 @@ def test_create_entry_success(authed_client, db):
         "/vault/create",
         json={"description": "Mi secreto", "password": "secreto12345"},
     )
-    user = UserRepository.find_by_email("test@test.com", db)
+    user = UserRepository.get_by_email("test@test.com", db)
     assert user is not None, "El usuario debería existir (authed_client lo creó)"
-    entries = VaultRepository.find_by_user_id(user.id, db)
+    entries = VaultRepository.get_all_by_user_id(user.id, db)
 
     assert len(entries) == 1
     assert response.status_code == 201
@@ -41,9 +41,9 @@ def test_create_entry_decrypt_roundtrip(authed_client, db):
         "/vault/create",
         json={"description": "GitHub", "password": "gh_pass_12345"},
     )
-    user = UserRepository.find_by_email("test@test.com", db)
+    user = UserRepository.get_by_email("test@test.com", db)
     assert user is not None, "El usuario debería existir (authed_client lo creó)"
-    entry = VaultRepository.find_by_user_id(user.id, db)[0]
+    entry = VaultRepository.get_all_by_user_id(user.id, db)[0]
 
     user_obj = db.query(User).filter(User.id == user.id).first()
 

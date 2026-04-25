@@ -18,7 +18,7 @@ router = APIRouter(prefix="/vault", tags=["vault"])
     "/create",
     status_code=status.HTTP_201_CREATED,
 )
-def create(
+def create_entry(
     entry_data: EntryCreate,
     user: Annotated[User, Depends(auth_user)],
     fernet: Annotated[Fernet, Depends(get_vault_session)],
@@ -34,3 +34,19 @@ def get_entries(
     db: Annotated[Session, Depends(get_db)],
 ):
     return VaultService.get_entries(user, fernet, db)
+
+
+@router.patch("/update/{entry_id}", status_code=status.HTTP_200_OK)
+def update_entry(
+    entry_id: int,
+    entry_data: EntryCreate,
+    user: Annotated[User, Depends(auth_user)],
+    fernet: Annotated[Fernet, Depends(get_vault_session)],
+    db: Annotated[Session, Depends(get_db)],
+):
+    return VaultService.update_entry(entry_id, entry_data, user, fernet, db)
+
+
+@router.delete("/delete/{entry_id}")
+def delete_entry():
+    pass
