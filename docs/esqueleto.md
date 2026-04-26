@@ -2,36 +2,59 @@
 	```
     PasswordsSecureVault/
 ├── app/
-│   ├── main.py                     # Crea la app, registra routers, crea tablas al arrancar
-│   ├── dependencies.py             # Dependencias compartidas (get_current_user, etc.) — pendiente
+│   ├── main.py                         # Crea la app, registra routers, crea tablas al arrancar
 │   ├── core/
-│   │   ├── config.py               # Settings con pydantic-settings (lee .env)
-│   │   └── security.py             # Hash Argon2id, JWT, cifrado Fernet — JWT y Fernet pendientes
+│   │   ├── config.py                   # Settings con pydantic-settings (lee .env)
+│   │   ├── exceptions.py              # Factory de excepciones HTTP (unauthorized, etc.)
+│   │   ├── logging_config.py           # Configuración de logging
+│   │   ├── rate_limit.py               # slowapi limiter 
+│   │   ├── security.py                 # Hash Argon2id, verify
+│   │   ├── vault_crypto.py             # Derivación de clave Fernet, encrypt/decrypt, re_encrypt
+│   │   └── vault_session_cache.py      # Cache de sesiones Fernet con diskcache
 │   ├── db/
-│   │   ├── database.py             # Engine, SessionLocal, Base, get_db (sync)
+│   │   ├── database.py                 # Engine, SessionLocal, Base, get_db (sync, commit/rollback)
 │   │   └── models/
-│   │       └── user_model.py       # Tabla SQLAlchemy User
-│   ├── schemas/
-│   │   └── auth_schema.py          # UserCreate, UserResponse (Pydantic)
+│   │       ├── user_model.py           # Tabla SQLAlchemy User (email, password_hash, vault_salt)
+│   │       └── vault_model.py          # Tabla SQLAlchemy VaultEntry (user_id FK, encrypted_password)
+│   ├── dependencies/
+│   │   ├── auth_deps.py                # auth_user: extrae JWT de cookie, retorna User
+│   │   └── vault_deps.py               # get_vault_session: Fernet desde cache; get_owned_entry: 404+403
+│   ├── repositories/
+│   │   ├── user_repository.py           # create, get_by_email, get_by_id, update_password (ORM-style)
+│   │   └── vault_repository.py          # create, update, delete, get_all_by_user_id, get_by_id (ORM-style)
 │   ├── routers/
-│   │   └── auth_router.py          # POST /auth/register — faltan /login y /logout
-│   ├── services/
-│   │   └── auth_service.py         # Lógica de registro — falta login y logout
-│   └── repositories/
-│       └── user_repository.py       # find_by_email, create
+│   │   ├── auth_router.py               # /auth/* endpoints (register, login, logout, me, password)
+│   │   └── vault_router.py              # /vault/* endpoints (create, entries, update, delete)
+│   ├── schemas/
+│   │   ├── auth_schema.py              # UserCreate, UserResponse, ChangePasswordRequest, MessageResponse
+│   │   └── vault_schema.py             # EntryCreate (validación), EntryRead (serialización)
+│   └── services/
+│       ├── auth_service.py             # register, login, logout, change_password (re-encriptación)
+│       └── vault_service.py            # create_entry, get_entries, update_entry, delete_entry
 ├── scripts/
-│   └── init-db.sh                  # Crea vault_test_db en PostgreSQL 
+│   └── init-db.sh                      # Crea vault_test_db en PostgreSQL
 ├── tests/
-│   ├── conftest.py                 # Fixtures: TestClient, BD de test, dependency_overrides
-│   └── test_auth.py                # Tests del registro (5 tests)
+│   ├── conftest.py                     # Fixtures: client, authed_client, second_authed_client, db, reset_db
+│   ├── tests_auth/
+│   │   ├── test_register.py            
+│   │   ├── test_login.py               
+│   │   ├── test_auth_user.py           
+│   │   ├── test_logout.py              
+│   │   └── test_change_password.py     
+│   └── tests_vault/
+│       ├── test_create_entry.py        
+│       ├── test_get_entries.py          
+│       ├── test_update_entry.py         
+│       └── test_delete_entry.py        
 ├── docs/
-│   ├── esqueleto.md
-│   ├── architecture.md             
-│   └── requisitos.md               # Requisitos funcionales y no funcionales
-├── .env.example                    
+│   ├── architecture.md                 
+│   ├── esqueleto.md                    
+│   └── requisitos.md                   
+├── .env.example                        
 ├── .gitignore
-├── docker-compose.yml             
-├── requirements.txt                
-└── README.md                       
+├── docker-compose.yml                  # PostgreSQL + app
+├── pyproject.toml                      # Configuración de pytest
+├── requirements.txt                    
+└── README.md
 	```
 ---
