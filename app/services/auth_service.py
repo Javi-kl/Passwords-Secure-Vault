@@ -9,6 +9,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
+from app.core.exceptions import unauthorized
 from app.core.security import hash_password, verify_password
 from app.core.vault_crypto import create_fernet, generate_vault_salt, re_encrypt
 from app.core.vault_session_cache import remove_vault_session, store_vault_session
@@ -40,19 +41,12 @@ class AuthService:
         user = UserRepository.get_by_email(form.username, db)
         if not user:
             logger.warning("Login fallido para: %s", form.username)
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Credenciales no válidas",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            raise unauthorized()
 
         if not verify_password(form.password, user.password_hash):
             logger.warning("Login fallido para: %s", form.username)
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Credenciales no válidas",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            raise unauthorized()
+
         fernet = create_fernet(form.password, user.vault_salt)
         vault_session_id = secrets.token_urlsafe(32)
         store_vault_session(vault_session_id, fernet)
@@ -85,11 +79,7 @@ class AuthService:
         vault_session_id: str | None,
     ):
         if not verify_password(password_data.current_password, user.password_hash):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Credenciales no válidas",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            raise unauthorized()
 
         if password_data.current_password == password_data.new_password:
             raise HTTPException(
@@ -116,7 +106,7 @@ class AuthService:
             )
 
         UserRepository.update_password(
-            user.id, hash_password(password_data.new_password), db
+            user, hash_password(password_data.new_password), db
         )
 
         if vault_session_id:

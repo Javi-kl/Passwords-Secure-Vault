@@ -17,7 +17,7 @@ def test_create_entry_success(authed_client, db):
 
     assert len(entries) == 1
     assert response.status_code == 201
-    assert "Entrada creada correctamente" in response.text
+    assert "Entrada creada." in response.text
 
 
 def test_create_entry_password_encrypted(authed_client, db):
@@ -26,11 +26,7 @@ def test_create_entry_password_encrypted(authed_client, db):
         "/vault/create",
         json={"description": "GitHub", "password": "gh_pass_12345"},
     )
-    entry = (
-        db.query(VaultEntry)
-        .filter(VaultEntry.description == "GitHub", VaultEntry.user_id == 1)
-        .first()
-    )
+    entry = db.get(VaultEntry, 1)
     assert entry is not None
     assert entry.encrypted_password != "gh_pass_12345"
 
@@ -45,7 +41,7 @@ def test_create_entry_decrypt_roundtrip(authed_client, db):
     assert user is not None, "El usuario debería existir (authed_client lo creó)"
     entry = VaultRepository.get_all_by_user_id(user.id, db)[0]
 
-    user_obj = db.query(User).filter(User.id == user.id).first()
+    user_obj = db.get(User, user.id)
 
     fernet_key = create_fernet("12345678901234", user_obj.vault_salt)
     plaintext = decrypt_entry(fernet_key, entry.encrypted_password)

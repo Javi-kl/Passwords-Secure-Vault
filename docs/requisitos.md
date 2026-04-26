@@ -60,7 +60,17 @@
 		- DADO que la entrada existe y es mía, CUANDO la elimino, ENTONCES se borra correctamente.
 		- DADO que la entrada no existe, CUANDO intento borrarla, ENTONCES recibo 404.
 		- DADO que la entrada no es mía, CUANDO intento borrarla, ENTONCES la operación se rechaza.
--
+	
+	- ## RF8. Cambiar contraseña maestra
+		- **Historia:** Como usuario autenticado, quiero cambiar mi contraseña maestra para mantener la seguridad de mi cuenta.
+		    
+		  **Criterios de aceptación:**  
+		- DADO que la contraseña actual es correcta, CUANDO envío una nueva contraseña válida, ENTONCES se actualiza el hash y se re-encriptan todas las entradas de la bóveda con la nueva clave.
+		- DADO que la contraseña actual es incorrecta, CUANDO intento cambiarla, ENTONCES recibo 401.
+		- DADO que la nueva contraseña es igual a la actual, CUANDO intento cambiarla, ENTONCES recibo 400.
+		- DADO que la nueva contraseña y la confirmación no coinciden, CUANDO intento cambiarla, ENTONCES recibo 422.
+		- DADO que la re-encriptación falla, CUANDO se produce un error de cifrado, ENTONCES recibo 500 y las entradas no se modifican (rollback).
+		- DADO que el usuario no tiene entradas en la bóveda, CUANDO cambia la contraseña, ENTONCES la operación se completa sin error.
 ---
 - ## *Requisitos no funcionales*
 	- ## RNF1. Seguridad de contraseña maestra
