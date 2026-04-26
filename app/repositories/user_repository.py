@@ -1,4 +1,4 @@
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db.models.user_model import User
@@ -13,17 +13,14 @@ class UserRepository:
         return user
 
     @staticmethod
-    def update_password(user_id: int, password_hash: str, db: Session) -> bool:
-        update_user_password = (
-            update(User).where(User.id == user_id).values(password_hash=password_hash)
-        )
-        db.execute(update_user_password)
+    def update_password(user: User, password_hash: str, db: Session) -> bool:
+        user.password_hash = password_hash
         db.flush()
         return True
 
     @staticmethod
     def get_by_id(user_id: int, db: Session) -> User | None:
-        return db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
+        return db.get(User, user_id)
 
     @staticmethod
     def get_by_email(email: str, db: Session) -> User | None:

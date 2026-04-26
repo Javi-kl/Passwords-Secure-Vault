@@ -1,3 +1,5 @@
+from sqlalchemy import func, select
+
 from app.core.vault_crypto import create_fernet, decrypt_entry
 from app.db.models.vault_model import VaultEntry
 from app.repositories.user_repository import UserRepository
@@ -12,7 +14,7 @@ def test_change_password_reencrypt_entries(authed_client, db):
     assert response.status_code == 201
 
     # 2 ─ Capturar el ciphertext ORIGINAL antes del cambio de contraseña
-    old_entry = db.query(VaultEntry).filter(VaultEntry.user_id == 1).first()
+    old_entry = db.get(VaultEntry, 1)
     old_ciphertext = old_entry.encrypted_password
 
     # 3 ─ Cambiar la contraseña
@@ -39,7 +41,8 @@ def test_change_password_reencrypt_entries(authed_client, db):
 
 def test_change_password_empty_vault(authed_client, db):
     """Cambiar contraseña sin entradas en la bóveda funciona correctamente"""
-    assert db.query(VaultEntry).count() == 0
+
+    assert db.scalar(select(func.count(VaultEntry.id))) == 0
 
     response = authed_client.patch(
         "/auth/password",
@@ -50,7 +53,7 @@ def test_change_password_empty_vault(authed_client, db):
         },
     )
     assert response.status_code == 200
-    assert db.query(VaultEntry).count() == 0
+    assert db.scalar(select(func.count(VaultEntry.id))) == 0
 
 
 def test_change_password_keeps_entries_unchanged_on_failure(db, client):
@@ -67,7 +70,7 @@ def test_change_password_keeps_entries_unchanged_on_failure(db, client):
     )
 
     # 2 ─ Capturar el ciphertext original
-    old_entry = db.query(VaultEntry).first()
+    old_entry = db.get(VaultEntry, 1)
     original_ciphertext = old_entry.encrypted_password
 
     # 3 ─ Intentar cambiar la contraseña con una incorrecta

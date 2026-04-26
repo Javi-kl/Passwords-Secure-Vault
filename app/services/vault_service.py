@@ -49,13 +49,13 @@ class VaultService:
         entry_id: int, entry_data: EntryCreate, user: User, fernet: Fernet, db: Session
     ):
 
-        entry_for_update = VaultRepository.get_by_id(entry_id, db)
-        if not entry_for_update:
+        entry = VaultRepository.get_by_id(entry_id, db)
+        if not entry:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="La entrada no existe."
             )
 
-        if entry_for_update.user_id != user.id:
+        if entry.user_id != user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="No tienes permiso para modificar esta entrada.",
@@ -63,7 +63,7 @@ class VaultService:
         encrypted_password = encrypt_entry(fernet, entry_data.password)
 
         VaultRepository.update(
-            entry_for_update.id, entry_data.description, encrypted_password, db
+            entry, entry_data.description, encrypted_password, db
         )
         return {"message": "Entrada actualizada correctamente"}
 

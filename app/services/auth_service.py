@@ -114,9 +114,9 @@ class AuthService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Error al actualizar la bóveda.",
             )
-
+        
         UserRepository.update_password(
-            user.id, hash_password(password_data.new_password), db
+            user, hash_password(password_data.new_password), db
         )
 
         if vault_session_id:
