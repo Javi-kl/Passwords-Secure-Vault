@@ -17,7 +17,7 @@ def test_create_entry_success(authed_client, db):
 
     assert len(entries) == 1
     assert response.status_code == 201
-    assert "Entrada creada correctamente" in response.text
+    assert "Entrada creada." in response.text
 
 
 def test_create_entry_password_encrypted(authed_client, db):

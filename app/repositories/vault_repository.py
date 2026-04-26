@@ -28,8 +28,10 @@ class VaultRepository:
         return True
 
     @staticmethod
-    def delete():
-        pass
+    def delete(entry: VaultEntry, db: Session) -> bool:
+        db.delete(entry)
+        db.flush()
+        return True
 
     @staticmethod
     def get_all_by_user_id(user_id: int, db: Session) -> list[VaultEntry]:

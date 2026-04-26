@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.vault_crypto import decrypt_entry, encrypt_entry
 from app.db.models.user_model import User
+from app.db.models.vault_model import VaultEntry
 from app.repositories.vault_repository import VaultRepository
 from app.schemas.vault_schema import EntryCreate, EntryRead
 
@@ -17,7 +18,7 @@ class VaultService:
     def create_entry(entry_data: EntryCreate, user: User, fernet: Fernet, db: Session):
         encrypted_password = encrypt_entry(fernet, entry_data.password)
         VaultRepository.create(user.id, entry_data.description, encrypted_password, db)
-        return {"message": "Entrada creada correctamente"}
+        return {"message": "Entrada creada."}
 
     @staticmethod
     def get_entries(user: User, fernet: Fernet, db: Session):
@@ -46,27 +47,13 @@ class VaultService:
 
     @staticmethod
     def update_entry(
-        entry_id: int, entry_data: EntryCreate, user: User, fernet: Fernet, db: Session
+        entry: VaultEntry, entry_data: EntryCreate, fernet: Fernet, db: Session
     ):
-
-        entry = VaultRepository.get_by_id(entry_id, db)
-        if not entry:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="La entrada no existe."
-            )
-
-        if entry.user_id != user.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="No tienes permiso para modificar esta entrada.",
-            )
         encrypted_password = encrypt_entry(fernet, entry_data.password)
-
-        VaultRepository.update(
-            entry, entry_data.description, encrypted_password, db
-        )
-        return {"message": "Entrada actualizada correctamente"}
+        VaultRepository.update(entry, entry_data.description, encrypted_password, db)
+        return {"message": "Entrada actualizada."}
 
     @staticmethod
-    def delete_entry(entry_id, user, db):
-        pass
+    def delete_entry(entry: VaultEntry, db: Session):
+        VaultRepository.delete(entry, db)
+        return {"message": "Entrada borrada."}

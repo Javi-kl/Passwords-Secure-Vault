@@ -1,7 +1,7 @@
 from app.db.models.vault_model import VaultEntry
 
 
-def test_update_entry_success(authed_client, db):
+def test_update_entry_success(authed_client):
     """Update exitoso -> 200 + mensaje de confirmación."""
     authed_client.post(
         "/vault/create",
@@ -12,7 +12,7 @@ def test_update_entry_success(authed_client, db):
         json={"description": "GitHub", "password": "nueva12345"},
     )
     assert response.status_code == 200
-    assert "Entrada actualizada correctamente" in response.text
+    assert "Entrada actualizada." in response.text
 
 
 def test_update_entry_password_encrypted(authed_client, db):
