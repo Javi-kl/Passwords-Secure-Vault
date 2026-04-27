@@ -40,11 +40,10 @@ jobs:
       - name: Run tests
         run: pytest
         env:
-
           DATABASE_URL: postgresql://vault_user:vault_pass@localhost:5432/vault_db
           TEST_DATABASE_URL: postgresql://vault_user:vault_pass@localhost:5432/vault_db
           SECRET_KEY: test-secret-key-for-ci-only
           ALGORITHM: HS256
           VAULT_CACHE_DIR: /tmp/vault_sessions
-
+          COOKIE_SECURE: "0"
       
