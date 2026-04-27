@@ -1,0 +1,59 @@
+# .dockerignore — excluye archivos del contexto de build de Docker
+# Igual que .gitignore, pero para la imagen. Reduce tamaño y evita secretos.
+
+# Virtual environment — se crea limpio dentro del contenedor
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache — se regenera automáticamente
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Tests y coverage — no se necesitan en producción
+tests/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# IDE y OS — basura local
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Secrets — NUNCA hornear en la imagen
+.env
+
+# Git — no se necesita dentro del contenedor
+.git/
+.gitignore
+
+# Docker propios — evitar recursión
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Cache de vault — se crea en runtime dentro del contenedor
+tmp_vault_sessions/
+
+# Logs
+*.log
+
+# Docs y scripts de development
+docs/
+
+# Python artifacts
+build/
+dist/
+*.egg-info/
+
+# Coverage reports
+coverage.xml
+pytest.xml
+test_results/
