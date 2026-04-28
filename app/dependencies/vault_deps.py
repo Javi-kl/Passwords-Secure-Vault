@@ -13,7 +13,6 @@ from app.repositories.vault_repository import VaultRepository
 
 
 def get_vault_session(request: Request) -> Fernet:
-    """"""
     vault_session_id = getattr(request.state, "vault_session_id", None)
 
     if not vault_session_id:

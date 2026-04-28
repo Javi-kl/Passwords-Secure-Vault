@@ -13,6 +13,9 @@ setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from zxcvbn import zxcvbn
+
+    zxcvbn("warmup")
     yield
 
 

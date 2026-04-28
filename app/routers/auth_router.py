@@ -67,5 +67,5 @@ def change_password(
 
 
 @router.get("/me", response_model=UserResponse)
-async def me(user: Annotated[User, Depends(auth_user)]):
+def me(user: Annotated[User, Depends(auth_user)]):
     return UserResponse.model_validate(user)
