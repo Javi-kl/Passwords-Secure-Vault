@@ -58,5 +58,4 @@ Los tests usan `vault_test_db` (definida en `TEST_DATABASE_URL` del .env), separ
 - [X] RNF2 — Cifrado Fernet antes de persistir
 - [X] RNF5 — Control de acceso por propietario (ownership en update/delete)
 ### Infraestructura
-- [ ] Migraciones con Alembic
-- [ ] Despliegue bajo HTTPS/TLS
+- [X] Migraciones con Alembic

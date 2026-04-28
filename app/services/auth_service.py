@@ -37,7 +37,7 @@ class AuthService:
         return UserResponse.model_validate(user)
 
     @staticmethod
-    def login(form: OAuth2PasswordRequestForm, db: Session, response: Response):
+    def login(form: OAuth2PasswordRequestForm, db: Session, response: Response) -> dict:
         user = UserRepository.get_by_email(form.username, db)
         if not user:
             logger.warning("Login fallido para: %s", form.username)
@@ -77,7 +77,7 @@ class AuthService:
         password_data: ChangePasswordRequest,
         db: Session,
         vault_session_id: str | None,
-    ):
+    ) -> dict:
         if not verify_password(password_data.current_password, user.password_hash):
             raise unauthorized()
 
@@ -115,7 +115,9 @@ class AuthService:
         return {"message": "Contraseña actualizada correctamente"}
 
     @staticmethod
-    def logout(response: Response, request: Request, vault_session_id: str | None):
+    def logout(
+        response: Response, request: Request, vault_session_id: str | None
+    ) -> dict:
 
         if vault_session_id:
             remove_vault_session(vault_session_id)

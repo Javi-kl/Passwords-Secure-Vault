@@ -34,7 +34,7 @@ def test_me_with_expired_token(client, db):
 
     vault_salt = b"test_salt_1234567890"
     UserRepository.create(
-        "test@test.com", hash_password("12345678901234"), vault_salt, db
+        "test@test.com", hash_password("UnaClaveSegura2024!"), vault_salt, db
     )
     db.commit()
 

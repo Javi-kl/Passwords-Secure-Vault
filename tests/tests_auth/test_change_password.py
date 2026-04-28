@@ -21,9 +21,9 @@ def test_change_password_reencrypt_entries(authed_client, db):
     response = authed_client.patch(
         "/auth/password",
         json={
-            "current_password": "12345678901234",
-            "new_password": "newpassword123456",
-            "confirm_password": "newpassword123456",
+            "current_password": "UnaClaveSegura2024!",
+            "new_password": "NuevaPasswordSegura99!",
+            "confirm_password": "NuevaPasswordSegura99!",
         },
     )
     assert response.status_code == 200
@@ -34,7 +34,7 @@ def test_change_password_reencrypt_entries(authed_client, db):
 
     # 5 ─ Verificar que se puede descifrar con la NUEVA contraseña
     user = UserRepository.get_by_email("test@test.com", db)
-    new_fernet = create_fernet("newpassword123456", user.vault_salt)
+    new_fernet = create_fernet("NuevaPasswordSegura99!", user.vault_salt)
     plaintext = decrypt_entry(new_fernet, old_entry.encrypted_password)
     assert plaintext == "secreto12345"
 
@@ -47,9 +47,9 @@ def test_change_password_empty_vault(authed_client, db):
     response = authed_client.patch(
         "/auth/password",
         json={
-            "current_password": "12345678901234",
-            "new_password": "newpassword123456",
-            "confirm_password": "newpassword123456",
+            "current_password": "UnaClaveSegura2024!",
+            "new_password": "NuevaPasswordSegura99!",
+            "confirm_password": "NuevaPasswordSegura99!",
         },
     )
     assert response.status_code == 200
@@ -60,10 +60,12 @@ def test_change_password_keeps_entries_unchanged_on_failure(db, client):
     """Si el cambio falla (contraseña actual incorrecta), las entradas no cambian"""
     # 1 ─ Registrar usuario y crear entrada vía API
     client.post(
-        "/auth/register", json={"email": "test@test.com", "password": "12345678901234"}
+        "/auth/register",
+        json={"email": "test@test.com", "password": "UnaClaveSegura2024!"},
     )
     client.post(
-        "/auth/login", data={"username": "test@test.com", "password": "12345678901234"}
+        "/auth/login",
+        data={"username": "test@test.com", "password": "UnaClaveSegura2024!"},
     )
     client.post(
         "/vault/create", json={"description": "Mi secreto", "password": "secreto12345"}
@@ -77,9 +79,9 @@ def test_change_password_keeps_entries_unchanged_on_failure(db, client):
     response = client.patch(
         "/auth/password",
         json={
-            "current_password": "wrongpassword1",
-            "new_password": "newpassword123456",
-            "confirm_password": "newpassword123456",
+            "current_password": "NuevaPasswordSegura99!Erronea",
+            "new_password": "NuevaPasswordSegura99!",
+            "confirm_password": "NuevaPasswordSegura99!",
         },
     )
 
@@ -95,9 +97,9 @@ def test_change_password_unauthenticated(client):
     response = client.patch(
         "/auth/password",
         json={
-            "current_password": "12345678901234",
-            "new_password": "newpassword123456",
-            "confirm_password": "newpassword123456",
+            "current_password": "UnaClaveSegura2024!",
+            "new_password": "NuevaPasswordSegura99!",
+            "confirm_password": "NuevaPasswordSegura99!",
         },
     )
     assert response.status_code == 401
@@ -109,9 +111,9 @@ def test_change_password_valid(authed_client, db):
     response = authed_client.patch(
         "/auth/password",
         json={
-            "current_password": "12345678901234",
-            "new_password": "new12345678901234",
-            "confirm_password": "new12345678901234",
+            "current_password": "UnaClaveSegura2024!",
+            "new_password": "NuevaPasswordSegura99!",
+            "confirm_password": "NuevaPasswordSegura99!",
         },
     )
     assert response.status_code == 200
@@ -124,9 +126,9 @@ def test_change_password_mismatch(authed_client):
     response = authed_client.patch(
         "/auth/password",
         json={
-            "current_password": "12345678901234",
-            "new_password": "newpassword123456",
-            "confirm_password": "different1234567",
+            "current_password": "UnaClaveSegura2024!",
+            "new_password": "NuevaPasswordSegura99!",
+            "confirm_password": "NuevaPasswordSegura99!Diferente",
         },
     )
     assert response.status_code == 422
@@ -137,9 +139,9 @@ def test_change_password_wrong_current(authed_client):
     response = authed_client.patch(
         "/auth/password",
         json={
-            "current_password": "wrongpassword1",
-            "new_password": "newpassword123456",
-            "confirm_password": "newpassword123456",
+            "current_password": "wrongpassword1",  # -
+            "new_password": "NuevaPasswordSegura99!",
+            "confirm_password": "NuevaPasswordSegura99!",
         },
     )
     assert response.status_code == 401
@@ -150,9 +152,22 @@ def test_change_password_same_as_current(authed_client):
     response = authed_client.patch(
         "/auth/password",
         json={
-            "current_password": "12345678901234",
-            "new_password": "12345678901234",
-            "confirm_password": "12345678901234",
+            "current_password": "UnaClaveSegura2024!",
+            "new_password": "UnaClaveSegura2024!",
+            "confirm_password": "UnaClaveSegura2024!",
         },
     )
     assert response.status_code == 400
+
+
+def test_change_password_weak_new_password_rejected(authed_client):
+    """Cambiar a contraseña débil (score < 2) es rechazado con 422."""
+    response = authed_client.patch(
+        "/auth/password",
+        json={
+            "current_password": "UnaClaveSegura2024!",
+            "new_password": "passwordpassword",  # score 0
+            "confirm_password": "passwordpassword",
+        },
+    )
+    assert response.status_code == 422

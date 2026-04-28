@@ -15,13 +15,13 @@ logger = logging.getLogger("vault_service")
 
 class VaultService:
     @staticmethod
-    def create_entry(entry_data: EntryCreate, user: User, fernet: Fernet, db: Session):
+    def create_entry(entry_data: EntryCreate, user: User, fernet: Fernet, db: Session) -> dict:
         encrypted_password = encrypt_entry(fernet, entry_data.password)
         VaultRepository.create(user.id, entry_data.description, encrypted_password, db)
         return {"message": "Entrada creada."}
 
     @staticmethod
-    def get_entries(user: User, fernet: Fernet, db: Session):
+    def get_entries(user: User, fernet: Fernet, db: Session) -> list[EntryRead]:
         entries = VaultRepository.get_all_by_user_id(user.id, db)
         result = []
         try:
@@ -48,12 +48,12 @@ class VaultService:
     @staticmethod
     def update_entry(
         entry: VaultEntry, entry_data: EntryCreate, fernet: Fernet, db: Session
-    ):
+    )->dict:
         encrypted_password = encrypt_entry(fernet, entry_data.password)
         VaultRepository.update(entry, entry_data.description, encrypted_password, db)
         return {"message": "Entrada actualizada."}
 
     @staticmethod
-    def delete_entry(entry: VaultEntry, db: Session):
+    def delete_entry(entry: VaultEntry, db: Session)->dict:
         VaultRepository.delete(entry, db)
         return {"message": "Entrada borrada."}

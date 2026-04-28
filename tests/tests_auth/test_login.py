@@ -2,12 +2,12 @@ def test_login_success(client):
     # crea usuario
     client.post(
         "/auth/register",
-        json={"email": "ana@gmail.com", "password": "12345678901234"},
+        json={"email": "ana@gmail.com", "password": "UnaClaveSegura2024"},
     )
     # Login con form-data
     response = client.post(
         "/auth/login",
-        data={"username": "ana@gmail.com", "password": "12345678901234"},
+        data={"username": "ana@gmail.com", "password": "UnaClaveSegura2024"},
     )
     assert response.status_code == 200
     assert "access_token" in response.cookies
@@ -16,17 +16,17 @@ def test_login_success(client):
 def test_login_invalid_email(client):
     client.post(
         "/auth/register",
-        json={"email": "ana@gmail.com", "password": "12345678901234"},
+        json={"email": "ana@gmail.com", "password": "UnaClaveSegura2024"},
     )
     # Intento de login con distinto email
     response_diferent_email = client.post(
         "/auth/login",
-        data={"username": "dist@gmail.com", "password": "12345678901234"},
+        data={"username": "dist@gmail.com", "password": "UnaClaveSegura2024"},
     )
     # intento de login con campo 'email' vacio
     response_empty_email = client.post(
         "/auth/login",
-        data={"username": "", "password": "12345678901234"},
+        data={"username": "", "password": "UnaClaveSegura2024"},
     )
     assert response_diferent_email.status_code == 401
     assert response_empty_email.status_code == 422
@@ -35,11 +35,11 @@ def test_login_invalid_email(client):
 def test_login_invalid_password(client):
     client.post(
         "/auth/register",
-        json={"email": "ana@gmail.com", "password": "12345678901234"},
+        json={"email": "ana@gmail.com", "password": "UnaClaveSegura2024"},
     )
     response_diferent_password = client.post(
         "/auth/login",
-        data={"username": "ana@gmail.com", "password": "123456789012343124124"},
+        data={"username": "ana@gmail.com", "password": "OtraClaveDistinta2024!"},
     )
     response_empty_password = client.post(
         "/auth/login",
@@ -53,19 +53,19 @@ def test_login_rate_limit_exceed(client):
 
     client.post(
         "/auth/register",
-        json={"email": "ana@gmail.com", "password": "12345678901234"},
+        json={"email": "ana@gmail.com", "password": "UnaClaveSegura2024"},
     )
     # 5 intentos de login , deben ser OK
     for _ in range(5):
         response = client.post(
             "/auth/login",
-            data={"username": "ana@gmail.com", "password": "12345678901234"},
+            data={"username": "ana@gmail.com", "password": "UnaClaveSegura2024"},
         )
         assert response.status_code == 200
     # 4 debe dar error
     response = client.post(
         "/auth/login",
-        data={"username": "ana@gmail.com", "password": "12345678901234"},
+        data={"username": "ana@gmail.com", "password": "UnaClaveSegura2024"},
     )
     assert response.status_code == 429
     assert "Rate limit exceeded: 5 per 1 minute" in response.text
@@ -74,17 +74,18 @@ def test_login_rate_limit_exceed(client):
 def test_login_generic_error_message(client):
     """el sistema no debe revelar si falló por email inexistente o contraseña incorrecta."""
     client.post(
-        "/auth/register", json={"email": "ana@gmail.com", "password": "12345678901234"}
+        "/auth/register",
+        json={"email": "ana@gmail.com", "password": "UnaClaveSegura2024"},
     )
     # Email que no existe
     response_wrong_email = client.post(
         "/auth/login",
-        data={"username": "noexiste@gmail.com", "password": "12345678901234"},
+        data={"username": "noexiste@gmail.com", "password": "UnaClaveSegura2024"},
     )
     # Contraseña incorrecta
     response_wrong_password = client.post(
         "/auth/login",
-        data={"username": "ana@gmail.com", "password": "incorrecta1234567"},
+        data={"username": "ana@gmail.com", "password": "OtraClaveDistinta2024!"},
     )
     assert response_wrong_email.status_code == 401
     assert response_wrong_password.status_code == 401

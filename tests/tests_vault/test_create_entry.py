@@ -43,7 +43,7 @@ def test_create_entry_decrypt_roundtrip(authed_client, db):
 
     user_obj = db.get(User, user.id)
 
-    fernet_key = create_fernet("12345678901234", user_obj.vault_salt)
+    fernet_key = create_fernet("UnaClaveSegura2024!", user_obj.vault_salt)
     plaintext = decrypt_entry(fernet_key, entry.encrypted_password)
 
     assert plaintext == "gh_pass_12345"

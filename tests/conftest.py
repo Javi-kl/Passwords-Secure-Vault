@@ -50,10 +50,10 @@ def reset_limiter():
 def authed_client(client):
     """Cliente con cookie de autenticación seteada."""
     client.post(
-        "/auth/register", json={"email": "test@test.com", "password": "12345678901234"}
+        "/auth/register", json={"email": "test@test.com", "password": "UnaClaveSegura2024!"}
     )
     client.post(
-        "/auth/login", data={"username": "test@test.com", "password": "12345678901234"}
+        "/auth/login", data={"username": "test@test.com", "password": "UnaClaveSegura2024!"}
     )
     return client
 
@@ -74,9 +74,9 @@ def second_authed_client():
     app.dependency_overrides[get_db] = override_get_db
     client = TestClient(app)
     client.post(
-        "/auth/register", json={"email": "other@test.com", "password": "12345678901234"}
+        "/auth/register", json={"email": "other@test.com", "password": "UnaClaveSegura2024!"}
     )
     client.post(
-        "/auth/login", data={"username": "other@test.com", "password": "12345678901234"}
+        "/auth/login", data={"username": "other@test.com", "password": "UnaClaveSegura2024!"}
     )
     return client

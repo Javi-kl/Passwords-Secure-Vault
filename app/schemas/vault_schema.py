@@ -14,7 +14,7 @@ class EntryCreate(BaseModel):
             raise ValueError("La contraseña debe tener al menos 8 caracteres")
         return password
 
-
+    
 class EntryRead(BaseModel):
     id: int
     description: str

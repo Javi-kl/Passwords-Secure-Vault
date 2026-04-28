@@ -1,5 +1,7 @@
 from pydantic import BaseModel, EmailStr, field_validator, model_validator
 
+from app.core.security import validate_password_strength
+
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -8,9 +10,8 @@ class UserCreate(BaseModel):
     @field_validator("password")
     @classmethod
     def validate_password(cls, password: str) -> str:
-        if len(password) < 14:
-            raise ValueError("La contraseña debe tener al menos 14 caracteres")
-        return password
+
+        return validate_password_strength(password)
 
 
 class UserResponse(BaseModel):
@@ -32,9 +33,7 @@ class ChangePasswordRequest(BaseModel):
     @field_validator("new_password")
     @classmethod
     def validate_new_password(cls, new_password: str) -> str:
-        if len(new_password) < 14:
-            raise ValueError("La contraseña debe tener al menos 14 caracteres")
-        return new_password
+        return validate_password_strength(new_password)
 
     @model_validator(mode="after")
     def passwords_match(self) -> "ChangePasswordRequest":
