@@ -50,12 +50,14 @@
 		- PostgreSQL 16 como BD.
 		- JWT en cookie httpOnly (no Authorization header).
 		- Fernet (AES-128-CBC + HMAC-SHA256) para cifrado de bóveda.
+		- SECRET_KEY validada al arrancar (mínimo 32 caracteres, fail-fast si falta o es corta).
 		- Argon2id para hash de contraseña y derivación de clave.
 		- Capas: Router → Dependency → Service → Repository.
 		- SQLAlchemy 2.0 (db.get, select, ORM-style mutations).
 		- Excepciones HTTP centralizadas en factory (core/exceptions.py).
 		- Rate limiting con slowapi (register: 3/min, login: 5/min, password: 1/min).
-		- Validación de fortaleza de contraseñas con zxcvbn (score mínimo 2), siguiendo OWASP(Sin reglas de composición)
+		- CORS configurado con orígenes explícitos y allow_credentials (cookies httpOnly).
+		- Validación de fortaleza de contraseñas con zxcvbn (score mínimo 2), sin reglas de composición.
 	- ## Endpoints
 		- ### Auth
 			- POST /auth/register (3/min)

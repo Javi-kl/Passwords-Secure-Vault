@@ -3,50 +3,69 @@
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.135-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-Backend de un gestor de contraseñas con autenticación JWT y cifrado de bóveda.
-> Proyecto enfocado en seguridad (cifrado, autenticación, control de acceso) y buenas prácticas con FastAPI. No incluye recuperación de contraseña maestra ni refresh tokens por decisión de diseño.
+> Backend de un gestor de contraseñas con autenticación JWT y cifrado de bóveda.
 
-- [`architecture.md`](./docs/architecture.md) — Capas, dependencies, flujos, decisiones técnicas.
-- [`requisitos.md`](./docs/requisitos.md) — Requisitos funcionales y no funcionales.
-- [`esqueleto.md`](./docs/esqueleto.md) — Estructura de archivos del proyecto.
-***
-## Stack Tecnológico
-- **FastAPI** / Python 3.12+
-- **PostgreSQL** + SQLAlchemy 2.0 (sync)
-- **Argon2id** — hash de contraseña maestra y derivación de clave Fernet
-- **Fernet** — cifrado de entradas de bóveda
-- **JWT (PyJWT)** — sesiones de 15 minutos, cookie httpOnly
-- **diskcache** — cache de sesiones de bóveda (claves Fernet)
-- **Pydantic v2** — validación de schemas
-- **slowapi** — rate limiting
-- **zxcvbn** — estimación de entropía de contraseñas 
-- **pytest** — tests
+> Proyecto enfocado en seguridad y buenas prácticas con FastAPI.
 
-***
+> Documentación: [`architecture.md`](./docs/architecture.md) · [`requisitos.md`](./docs/requisitos.md) · [`esqueleto.md`](./docs/esqueleto.md)
+---
+## Stack
+| Categoría | Tecnología |
+|-----------|-----------|
+| Framework | FastAPI / Python 3.12+ |
+| Base de datos | PostgreSQL 16 + SQLAlchemy 2.0 (sync) |
+| Hash de contraseña | Argon2id |
+| Cifrado de bóveda | Fernet |
+| Derivación de clave | Argon2id raw → Fernet key |
+| Sesiones | JWT (PyJWT) · 15 min · cookie httpOnly |
+| Validación de contraseña | Longitud mínima 14 + zxcvbn (score ≥ 2) |
+| Rate limiting | slowapi |
+| Migraciones | Alembic |
+| Tests | pytest |
+---
+## Decisiones de Seguridad
+- **Sin reglas de composición.** OWASP desaconseja forzar mayúsculas, números o símbolos: reducen la entropía real al incentivar patrones predecibles (`Password1!`).
+- **Longitud mínima 14 + zxcvbn score ≥ 2.** La longitud es la primera defensa; zxcvbn analiza entropía real detectando secuencias, repeticiones y patrones de teclado.
+- **Sin recuperación de contraseña maestra.** La contraseña es el único material de derivación de la clave de cifrado. Sin ella, los datos son irrecuperables. Esto es una propiedad de seguridad, no una carencia.
+- **SECRET_KEY validada al arrancar** (mínimo 32 caracteres). Si falta o es corta, la app no arranca.
+- **Mensajes de error genéricos en login.** No se revela si el fallo fue por email inexistente o contraseña incorrecta.
+---
 ## Desarrollo Local
 ### Prerrequisitos
 - Python 3.12+
 - Docker y Docker Compose
 ### Instalación
+```bash
 git clone https://github.com/Javi-kl/Passwords-Secure-Vault
 cd Passwords-Secure-Vault
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env    # completar con valores locales
+cp .env.example .env    # editar con valores locales
+```
 ### Base de datos
+```
 chmod +x scripts/init-db.sh
 docker compose up -d
-El script de init crea `vault_db` y `vault_test_db` automáticamente.  
+```
+El script de init crea vault_db y vault_test_db automáticamente.
 Si ya tenías el contenedor levantado antes del script:
+```
 docker compose down -v    # borra volúmenes (cuidado: pierde datos)
 docker compose up -d       # recrea con init-db.sh
+```
 ### Ejecutar la app
+```
 fastapi dev
-Docs interactivas en http://localhost:8000/docs.
+```
+Docs interactivas en http://localhost:8000/docs
+
 ### Ejecutar tests
+```
 pytest
-Los tests usan `vault_test_db` (definida en `TEST_DATABASE_URL` del .env), separada de la BD de desarrollo.
-***
+```
+46 tests que cubren login, registro, CRUD, cifrado, ownership, rate limiting, y re-encriptación.
+Los tests usan vault_test_db (definida en TEST_DATABASE_URL del .env), separada de la BD de desarrollo.
+---
 ## Roadmap
 ### Autenticación
 - [X] RF1 — Registro con email y contraseña maestra
@@ -65,9 +84,14 @@ Los tests usan `vault_test_db` (definida en `TEST_DATABASE_URL` del .env), separ
 - [X] RNF5 — Control de acceso por propietario (ownership en update/delete)
 ### Infraestructura
 - [X] Migraciones con Alembic
-- [X] Validación de fortaleza de contraseñas (zxcvbn)
-
+- [X] CI con GitHub Actions
+- [X] CORS configurado
+---
 ## Decisiones de Seguridad
-- **Sin reglas de composición** (mayúsculas, números, símbolos). OWASP desaconseja forzarlas: reducen la entropía real al incentivar patrones predecibles (`Password1!`).
+- **Sin reglas de composición** (mayúsculas, números, símbolos). OWASP desaconseja forzarlas: reducen la entropía real al incentivar patrones predecibles.
 - **Longitud mínima 14 caracteres + zxcvbn score ≥ 2**. La longitud es la primera defensa; zxcvbn analiza entropía real detectando secuencias que las reglas de composición no ven.
 - **Sin recuperación de contraseña maestra**. Por diseño: la contraseña maestra es el único material de derivación de la clave de cifrado de la bóveda. Sin ella, los datos son irrecuperables.
+---
+Licencia
+MIT (LICENSE)
+---
