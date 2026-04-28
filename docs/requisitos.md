@@ -78,8 +78,9 @@
 		    
 		  **Criterios de aceptación:**  
 		- La contraseña maestra nunca se guarda en texto plano.
-		- Solo se almacena un hash adaptativo con sal única por usuario.
-		- Si usas PBKDF2, será PBKDF2-HMAC-SHA-256 con coste alto; OWASP prioriza Argon2id si puedes usarlo.
+		- Solo se almacena un hash adaptativo con sal única por usuario (Argon2id).
+		- La validación de fortaleza usa zxcvbn (score mínimo 2) según OWASP.
+		- No se imponen reglas de composición.
 		    
 
 	- ## RNF2. Cifrado de contraseñas de la bóveda

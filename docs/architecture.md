@@ -14,7 +14,7 @@
 		- **Dependencies**: Pre-condiciones compartidas (auth, sesión de bóveda, ownership).
 		- **Service**: Lógica de negocio (cifrado, validaciones, errores HTTP).
 		- **Repository**: Acceso a BD (SQLAlchemy ORM). Sin lógica de negocio.
-		- **Core**: Funciones puras (hash, cifrado, rate limiting, excepciones).
+		- **Core**: Funciones puras (hash, cifrado, validación de fortaleza con zxcvbn, rate limiting, excepciones).
 	- ## Dependencies
 		```
 		auth_user ─→ get_vault_session ─→ endpoint (create, entries, update)
@@ -55,6 +55,7 @@
 		- SQLAlchemy 2.0 (db.get, select, ORM-style mutations).
 		- Excepciones HTTP centralizadas en factory (core/exceptions.py).
 		- Rate limiting con slowapi (register: 3/min, login: 5/min, password: 1/min).
+		- Validación de fortaleza de contraseñas con zxcvbn (score mínimo 2), siguiendo OWASP(Sin reglas de composición)
 	- ## Endpoints
 		- ### Auth
 			- POST /auth/register (3/min)
@@ -68,11 +69,13 @@
 			- PATCH /vault/update/{entry_id}
 			- DELETE /vault/delete/{entry_id}
 	- ## Tests
-		- Cobertura: auth (registro, login, logout, middleware, cambio de contraseña) y vault (CRUD completo + cifrado + ownership).
+		- Cobertura: auth (registro, login, logout, middleware, cambio de contraseña, validación zxcvbn) y vault (CRUD completo + cifrado + ownership).
 		- Fixtures: client, authed_client, second_authed_client, db, reset_db, reset_limiter.
 		- BD de test separada (TEST_DATABASE_URL) con recreate por test (drop_all + create_all).
-	- ## Opcionales para producción
-		- Alembic para migraciones de esquema.
-		- HTTPS obligatorio (reverse proxy).
-		- Auditoría de accesos (logging estructurado).
+	- ## Pendiente para producción
+		- HTTPS obligatorio con reverse proxy (Nginx/Caddy)
+		- Auditoría de accesos con logging estructurado (JSON).
+		- CSRF protection para cookie-based auth.
+		- Account lockout tras N intentos fallidos (actualmente solo rate limiting por IP).
+		- Búsqueda/filtro por descripción en GET /vault/entries?search=netflix
 ---
