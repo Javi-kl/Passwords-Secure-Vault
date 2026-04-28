@@ -24,11 +24,11 @@
 | Tests | pytest |
 ---
 ## Decisiones de Seguridad
-- **Sin reglas de composición.** OWASP desaconseja forzar mayúsculas, números o símbolos: reducen la entropía real al incentivar patrones predecibles (`Password1!`).
 - **Longitud mínima 14 + zxcvbn score ≥ 2.** La longitud es la primera defensa; zxcvbn analiza entropía real detectando secuencias, repeticiones y patrones de teclado.
-- **Sin recuperación de contraseña maestra.** La contraseña es el único material de derivación de la clave de cifrado. Sin ella, los datos son irrecuperables. Esto es una propiedad de seguridad, no una carencia.
+- **Sin recuperación de contraseña maestra.** La contraseña es el único material de derivación de la clave de cifrado. Sin ella, los datos son irrecuperables.
 - **SECRET_KEY validada al arrancar** (mínimo 32 caracteres). Si falta o es corta, la app no arranca.
 - **Mensajes de error genéricos en login.** No se revela si el fallo fue por email inexistente o contraseña incorrecta.
+- **Sin reglas de composición** (mayúsculas, números, símbolos). OWASP desaconseja forzarlas: reducen la entropía real al incentivar patrones predecibles.
 ---
 ## Desarrollo Local
 ### Prerrequisitos
@@ -43,12 +43,12 @@ pip install -r requirements.txt
 cp .env.example .env    # editar con valores locales
 ```
 ### Base de datos
+> El script de init crea vault_db y vault_test_db automáticamente.
 ```
 chmod +x scripts/init-db.sh
 docker compose up -d
 ```
-El script de init crea vault_db y vault_test_db automáticamente.
-Si ya tenías el contenedor levantado antes del script:
+> Si ya tenías el contenedor levantado antes del script:
 ```
 docker compose down -v    # borra volúmenes (cuidado: pierde datos)
 docker compose up -d       # recrea con init-db.sh
@@ -57,14 +57,17 @@ docker compose up -d       # recrea con init-db.sh
 ```
 fastapi dev
 ```
-Docs interactivas en http://localhost:8000/docs
+> Docs interactivas en http://localhost:8000/docs
 
 ### Ejecutar tests
 ```
 pytest
 ```
-46 tests que cubren login, registro, CRUD, cifrado, ownership, rate limiting, y re-encriptación.
-Los tests usan vault_test_db (definida en TEST_DATABASE_URL del .env), separada de la BD de desarrollo.
+
+> 46 tests que cubren login, registro, CRUD, cifrado, ownership, rate limiting, y re-encriptación.
+
+> Los tests usan vault_test_db (definida en TEST_DATABASE_URL del .env), separada de la BD de desarrollo.
+ 
 ---
 ## Roadmap
 ### Autenticación
@@ -86,12 +89,4 @@ Los tests usan vault_test_db (definida en TEST_DATABASE_URL del .env), separada 
 - [X] Migraciones con Alembic
 - [X] CI con GitHub Actions
 - [X] CORS configurado
----
-## Decisiones de Seguridad
-- **Sin reglas de composición** (mayúsculas, números, símbolos). OWASP desaconseja forzarlas: reducen la entropía real al incentivar patrones predecibles.
-- **Longitud mínima 14 caracteres + zxcvbn score ≥ 2**. La longitud es la primera defensa; zxcvbn analiza entropía real detectando secuencias que las reglas de composición no ven.
-- **Sin recuperación de contraseña maestra**. Por diseño: la contraseña maestra es el único material de derivación de la clave de cifrado de la bóveda. Sin ella, los datos son irrecuperables.
----
-Licencia
-MIT (LICENSE)
 ---
