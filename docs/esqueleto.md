@@ -2,13 +2,13 @@
 	```
     PasswordsSecureVault/
 ├── app/
-│   ├── main.py                         # Crea la app, registra routers, crea tablas al arrancar
+│   ├── main.py                         # Crea la app, precarga zxcvbn, registra routers
 │   ├── core/
 │   │   ├── config.py                   # Settings con pydantic-settings (lee .env)
-│   │   ├── exceptions.py              # Factory de excepciones HTTP (unauthorized, etc.)
+│   │   ├── exceptions.py               # Factory de excepciones HTTP (unauthorized, etc.)
 │   │   ├── logging_config.py           # Configuración de logging
 │   │   ├── rate_limit.py               # slowapi limiter 
-│   │   ├── security.py                 # Hash Argon2id, verify
+│   │   ├── security.py                 # Hash Argon2id, verify, validación zxcvbn
 │   │   ├── vault_crypto.py             # Derivación de clave Fernet, encrypt/decrypt, re_encrypt
 │   │   └── vault_session_cache.py      # Cache de sesiones Fernet con diskcache
 │   ├── db/
@@ -24,6 +24,7 @@
 │   │   └── vault_repository.py          # create, update, delete, get_all_by_user_id, get_by_id (ORM-style)
 │   ├── routers/
 │   │   ├── auth_router.py               # /auth/* endpoints (register, login, logout, me, password)
+│   │   ├── health_router.py             # /health (SELECT 1 para verificar conexión a BD)
 │   │   └── vault_router.py              # /vault/* endpoints (create, entries, update, delete)
 │   ├── schemas/
 │   │   ├── auth_schema.py              # UserCreate, UserResponse, ChangePasswordRequest, MessageResponse
@@ -32,6 +33,7 @@
 │       ├── auth_service.py             # register, login, logout, change_password (re-encriptación)
 │       └── vault_service.py            # create_entry, get_entries, update_entry, delete_entry
 ├── scripts/
+│   ├── entrypoint.sh                   # Ejecuta migraciones Alembic y arranca uvicorn (Docker)
 │   └── init-db.sh                      # Crea vault_test_db en PostgreSQL
 ├── tests/
 │   ├── conftest.py                     # Fixtures: client, authed_client, second_authed_client, db, reset_db
