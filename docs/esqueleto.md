@@ -1,5 +1,5 @@
 ## Esqueleto
-	```
+```text
     PasswordsSecureVault/
 ├── app/
 │   ├── main.py                         # Crea la app, precarga zxcvbn, registra routers
@@ -58,5 +58,5 @@
 ├── pyproject.toml                      # Configuración de pytest
 ├── requirements.txt                    
 └── README.md
-	```
+```
 ---
