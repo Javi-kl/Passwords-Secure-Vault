@@ -1,6 +1,7 @@
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerifyMismatchError
 from zxcvbn import zxcvbn
+
 password_hasher = PasswordHasher()
 
 
@@ -24,11 +25,3 @@ def validate_password_strength(password: str) -> str:
     if result["score"] < 2:
         raise ValueError("La contraseña no es lo suficientemente segura")
     return password
-
-
-
-
-
- 
-  
-

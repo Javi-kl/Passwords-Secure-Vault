@@ -8,6 +8,7 @@ venv/
 ENV/
 env/
 
+.direnv/
 # Python cache — se regenera automáticamente
 __pycache__/
 *.py[cod]
@@ -19,6 +20,10 @@ tests/
 .coverage
 coverage.xml
 htmlcov/
+.coverage.*
+*.db
+*.sqlite3
+test_*.db
 
 # IDE y OS — basura local
 .vscode/
