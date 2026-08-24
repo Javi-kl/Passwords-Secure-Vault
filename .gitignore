@@ -21,6 +21,7 @@ venv/
 ENV/
 env/
 .conda/
+.direnv/
 
 # Python
 __pycache__/
