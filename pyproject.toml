@@ -1,2 +1,16 @@
 [tool.pytest.ini_options]
 pythonpath = ["."]
+addopts = "--cov=app --cov-report=term-missing"
+
+[tool.coverage.run]
+branch = true
+omit = ["app/**/__init__.py"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "basic"
+include = ["app", "tests"]

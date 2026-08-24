@@ -1,11 +1,19 @@
 repos:
   # ── Ruff: lint + formato ────────────────────────────
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.15
+  - repo: local
     hooks:
       - id: ruff
-        args: [--fix]
+        name: ruff
+        entry: ruff check --fix
+        language: system
+        types: [python]
+        require_serial: true
       - id: ruff-format
+        name: ruff-format
+        entry: ruff format
+        language: system
+        types: [python]
+        require_serial: true
   # ── Higiene de archivos ─────────────────────────────
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
