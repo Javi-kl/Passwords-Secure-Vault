@@ -1,6 +1,9 @@
-from datetime import datetime, timedelta, timezone
-
 import jwt
+import secrets
+
+
+from datetime import datetime, timedelta, timezone
+from app.core.config import get_settings
 
 
 def test_me_with_valid_cookie(authed_client):
@@ -27,17 +30,6 @@ def test_me_with_invalid_token(client):
 
 
 def test_me_with_expired_token(client, db):
-    """token expirado devuelve 401"""
-    from app.core.config import get_settings
-    from app.core.security import hash_password
-    from app.repositories.user_repository import UserRepository
-
-    vault_salt = b"test_salt_1234567890"
-    UserRepository.create(
-        "test@test.com", hash_password("UnaClaveSegura2024!"), vault_salt, db
-    )
-    db.commit()
-
     payload = {
         "sub": "1",
         "exp": datetime.now(timezone.utc) - timedelta(minutes=1),
@@ -49,3 +41,16 @@ def test_me_with_expired_token(client, db):
     client.cookies.set("access_token", expired_token)
     response = client.get("/auth/me")
     assert response.status_code == 401
+    assert response.json()["detail"] == "Credenciales no válidas"
+
+
+def test_user_not_found_returns_401(client):
+    payload = {"sub": "1", "vault_session": secrets.token_urlsafe(32)}
+    token = jwt.encode(
+        payload, get_settings().SECRET_KEY, algorithm=get_settings().ALGORITHM
+    )
+    client.cookies.set("access_token", token)
+    response = client.get("/auth/me")
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Credenciales no válidas"
