@@ -1,8 +1,10 @@
 from sqlalchemy import func, select
+from cryptography.fernet import Fernet
 
-from app.core.vault_crypto import create_fernet, decrypt_entry
+from app.core.vault_crypto import create_fernet, encrypt_entry, decrypt_entry
 from app.db.models.vault_model import VaultEntry
 from app.repositories.user_repository import UserRepository
+from app.repositories.vault_repository import VaultRepository
 
 
 def test_change_password_reencrypt_entries(authed_client, db):
@@ -34,7 +36,9 @@ def test_change_password_reencrypt_entries(authed_client, db):
 
     # 5 ─ Verificar que se puede descifrar con la NUEVA contraseña
     user = UserRepository.get_by_email("test@test.com", db)
-    new_fernet = create_fernet("NuevaPasswordSegura99!", user.vault_salt)
+    if user is not None:
+        new_fernet = create_fernet("NuevaPasswordSegura99!", user.vault_salt)
+
     plaintext = decrypt_entry(new_fernet, old_entry.encrypted_password)
     assert plaintext == "secreto12345"
 
@@ -171,3 +175,27 @@ def test_change_password_weak_new_password_rejected(authed_client):
         },
     )
     assert response.status_code == 422
+
+
+def test_change_password_corrupt_entry_returns_500(authed_client, db):
+    """Una entrada cifrada con clave extranjera rompe el re-encrypt -> 500."""
+    # 1 ─ Login hecho por authed_client (contraseña real: "UnaClaveSegura2024!")
+
+    # 2 ─ Insertar una entrada cifrada con un fernet ALEATORIO (clave "extranjera")
+    user = UserRepository.get_by_email("test@test.com", db)
+    foreign_fernet = Fernet(Fernet.generate_key())
+    ciphertext = encrypt_entry(foreign_fernet, "secreto")
+    VaultRepository.create(user.id, "Netflix", ciphertext, db)
+    db.commit()  # imprescindible: sin commit, el endpoint no ve la fila
+
+    # 3 ─ Cambiar la contraseña con la contraseña actual correcta
+    response = authed_client.patch(
+        "/auth/password",
+        json={
+            "current_password": "UnaClaveSegura2024!",
+            "new_password": "NuevaPasswordSegura99!",
+            "confirm_password": "NuevaPasswordSegura99!",
+        },
+    )
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Error al actualizar la bóveda."
