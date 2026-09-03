@@ -1,6 +1,6 @@
 from typing import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.config import get_settings
@@ -29,3 +29,8 @@ def get_db() -> Generator[Session, None, None]:
         raise
     finally:
         db.close()
+
+
+def ping(db: Session) -> bool:
+    db.execute(text("SELECT 1"))
+    return True

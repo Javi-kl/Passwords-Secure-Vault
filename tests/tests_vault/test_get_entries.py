@@ -1,3 +1,9 @@
+import jwt
+from cryptography.fernet import Fernet
+from app.core.config import get_settings
+from app.core.vault_session_cache import store_vault_session
+
+
 def test_get_entries_successful(authed_client, db):
     """Con auth -> lista de entradas"""
     (
@@ -72,3 +78,22 @@ def test_get_entries_only_mine(authed_client, second_authed_client):
     assert "Netflix" in descriptions
     assert "Gmail" in descriptions
     assert "Other Netflix" not in descriptions
+
+
+def test_recover_entries_error_returns_500(authed_client):
+    """Entradas cifradas con clave A + sesión con clave B -> 500."""
+    authed_client.post(
+        "/vault/create",
+        json={"description": "Netflix", "password": "test_password"},
+    )
+    token = authed_client.cookies.get("access_token")
+    payload = jwt.decode(
+        token, get_settings().SECRET_KEY, algorithms=[get_settings().ALGORITHM]
+    )
+    vault_session_id = payload["vault_session"]
+    store_vault_session(vault_session_id, Fernet(Fernet.generate_key()))
+
+    response = authed_client.get("vault/entries")
+
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Error al recuperar la bóveda."

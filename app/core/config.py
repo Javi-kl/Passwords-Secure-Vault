@@ -4,9 +4,9 @@ from pydantic import ConfigDict, field_validator
 from pydantic_settings import BaseSettings
 
 
-
 class Settings(BaseSettings):
     """Configuración de la aplicación cargada desde variables de entorno."""
+
     DATABASE_URL: str
     TEST_DATABASE_URL: str
     SECRET_KEY: str

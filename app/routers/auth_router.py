@@ -43,7 +43,10 @@ def login(
 
 
 @router.post(
-    "/logout", response_model=MessageResponse,status_code=status.HTTP_200_OK, dependencies=[Depends(auth_user)]
+    "/logout",
+    response_model=MessageResponse,
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(auth_user)],
 )
 def logout(response: Response, request: Request):
     vault_session_id = getattr(request.state, "vault_session_id", None)
