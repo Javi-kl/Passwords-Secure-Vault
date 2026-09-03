@@ -1,8 +1,7 @@
 from functools import lru_cache
 
-from pydantic import ConfigDict, field_validator
-from pydantic_settings import BaseSettings
-
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     """Configuración de la aplicación cargada desde variables de entorno."""
@@ -14,7 +13,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     COOKIE_SECURE: bool = True
     VAULT_CACHE_DIR: str
-    model_config = ConfigDict(env_file=".env", extra="forbid")
+    model_config = SettingsConfigDict(env_file=".env", extra="forbid")
 
     @field_validator("SECRET_KEY")
     @classmethod
