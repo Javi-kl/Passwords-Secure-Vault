@@ -4,6 +4,7 @@
 # Virtual environment — se crea limpio dentro del contenedor
 .venv/
 venv/
+.direnv/
 ENV/
 env/
 
@@ -57,3 +58,10 @@ dist/
 coverage.xml
 pytest.xml
 test_results/
+
+# Herramientas dev
+.envrc
+flake.nix
+flake.lock
+.pre-commit-config.yaml
+.github/

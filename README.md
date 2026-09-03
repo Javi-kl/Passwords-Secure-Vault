@@ -1,8 +1,8 @@
 # Passwords-Secure-Vault
-[![CI](https://github.com/Javi-kl/Passwords-Secure-Vault/actions/workflows/ci.yml/badge.svg)](https://github.com/Javi-kl/Passwords-Secure-Vault/actions)
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.135-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Coverage](https://codecov.io/gh/Javi-kl/Passwords-Secure-Vault/branch/main/graph/badge.svg)](https://codecov.io/gh/Javi-kl/Passwords-Secure-Vault)
 > Backend de un gestor de contraseñas con autenticación JWT y cifrado de bóveda.
 
 > Proyecto enfocado en seguridad y buenas prácticas con FastAPI.
