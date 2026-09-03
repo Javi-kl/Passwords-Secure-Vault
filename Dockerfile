@@ -1,7 +1,8 @@
 # =============================================================================
 # IMAGEN BASE
 # =============================================================================
-FROM python:3.12-slim-bookworm
+ARG PYTHON_VERSION=3.12
+FROM python:${PYTHON_VERSION}-slim-bookworm
 
 # =============================================================================
 # DEPENDENCIAS DEL SISTEMA
@@ -35,7 +36,7 @@ COPY . .
 
 # Directorio para el cache de sesiones vault (diskcache)
 RUN mkdir -p /app/tmp_vault_sessions && \
-    chmod +x /app/scripts/entrypoint.sh 
+    chmod +x /app/scripts/entrypoint.sh
 
 EXPOSE 8000
 
